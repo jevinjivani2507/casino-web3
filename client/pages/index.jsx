@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { DisplayCampaigns } from "../components";
+import { DisplayGames } from "../components";
 import { useStateContext } from "../context";
 
 import { useRouter } from "next/router";
@@ -49,11 +49,11 @@ export default function Home() {
 
   return (
     <div>
-      <DisplayCampaigns
+      <DisplayGames
         title={
           search
             ? "Found " + searchCampaigns.length + " for " + search
-            : "All Campaigns " + "(" + parsedCampaigns.length + ")"
+            : "All Games " + "(" + parsedCampaigns.length + ")"
         }
         isLoading={isLoading}
         campaigns={search ? searchCampaigns : parsedCampaigns}

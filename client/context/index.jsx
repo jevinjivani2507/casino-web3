@@ -1,94 +1,56 @@
-import React, { useContext, createContext } from 'react';
+import { useState, useContext, createContext } from 'react';
+import { ethers } from 'ethers';
 
 import { useAddress, useContract, useMetamask, useContractWrite } from '@thirdweb-dev/react';
-import { ethers } from 'ethers';
 import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
 
 const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0xf59A1f8251864e1c5a6bD64020e3569be27e6AA9');
-  const { mutateAsync: createCampaign } = useContractWrite(contract, 'createCampaign');
 
-  const address = useAddress();
-  const connect = useMetamask();
+  const [currentAccount, setCurrentAccount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const publishCampaign = async (form) => {
+  //------Template Code------//
+  const [state, setState] = useState({
+    provider: null,
+    signer: null,
+    transactionsContract: null,
+  });
+
+  const connectWallet = async () => {
+    // const contractAddress = contractAddress;
+    // const contractABI = contractABI;
     try {
-      const data = await createCampaign([
-        address, // owner
-        form.title, // title
-        form.description, // description
-        form.target,
-        new Date(form.deadline).getTime(), // deadline,
-        form.image
-      ])
+      const { ethereum } = window;
 
-      console.log("contract call success", data)
+      if (ethereum) {
+        const account = await ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        console.log(account);
+        setCurrentAccount(account[0]);
+      }
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const transactionsContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+      setState({ provider, signer, transactionsContract });
     } catch (error) {
-      console.log("contract call failure", error)
+      console.log(error);
     }
-  }
-
-  const getCampaigns = async () => {
-    const campaigns = await contract.call('getCampaigns');
-
-    const parsedCampaings = campaigns.map((campaign, i) => ({
-      owner: campaign.owner,
-      title: campaign.title,
-      description: campaign.description,
-      target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
-      amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
-      image: campaign.image,
-      pId: i
-    }));
-
-    return parsedCampaings;
-  }
-
-  const getUserCampaigns = async () => {
-    const allCampaigns = await getCampaigns();
-
-    const filteredCampaigns = allCampaigns.filter((campaign) => campaign.owner === address);
-
-    return filteredCampaigns;
-  }
-
-  const donate = async (pId, amount) => {
-    const data = await contract.call('donateToCampaign', pId, { value: ethers.utils.parseEther(amount)});
-
-    return data;
-  }
-
-  const getDonations = async (pId) => {
-    const donations = await contract.call('getDonators', pId);
-    const numberOfDonations = donations[0].length;
-
-    const parsedDonations = [];
-
-    for(let i = 0; i < numberOfDonations; i++) {
-      parsedDonations.push({
-        donator: donations[0][i],
-        donation: ethers.utils.formatEther(donations[1][i].toString())
-      })
-    }
-
-    return parsedDonations;
-  }
+  };
 
 
   return (
     <StateContext.Provider
       value={{ 
-        address,
-        contract,
-        connect,
-        createCampaign: publishCampaign,
-        getCampaigns,
-        getUserCampaigns,
-        donate,
-        getDonations
+        currentAccount,
+        connectWallet,
+        setCurrentAccount,
       }}
     >
       {children}

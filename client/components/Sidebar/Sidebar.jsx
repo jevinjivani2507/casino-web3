@@ -6,6 +6,8 @@ import { logo, sun } from "../../assets";
 import { navlinks } from "../../constants";
 import Image from "next/image";
 
+import { useStateContext } from "../../context";
+
 import styless from "./sidebar.module.css";
 
 const Icon = ({ styles, name, imgUrl, isActive, disabled, handleClick }) => (
@@ -33,6 +35,8 @@ const Sidebar = () => {
   const router = useRouter();
   const [isActive, setIsActive] = useState("dashboard");
 
+  const { setCurrentAccount } = useStateContext();
+
   return (
     <div className="flex justify-between items-center flex-col sticky top-5 h-[93vh]">
       <Link href="/">
@@ -47,6 +51,7 @@ const Sidebar = () => {
               {...link}
               isActive={isActive}
               handleClick={() => {
+                link.name==="logout" && setCurrentAccount("");
                 setIsActive(link.name);
                 router.push(link.link);
               }}

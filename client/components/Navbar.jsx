@@ -7,13 +7,19 @@ import { logo, sun, menu, search, thirdweb } from "../assets";
 import { navlinks } from "../constants";
 import Image from "next/image";
 
+import { useStateContext } from "../context";
+
+import { shortenAddress } from "../utils";
+
+import coins from "../assets/Coins.svg";
+
 export const Navbar = () => {
   const router = useRouter();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  const address = "0xFF";
+  const { currentAccount, connectWallet } = useStateContext();
 
   const handleSearchClick = () => {
     router.push(
@@ -47,25 +53,23 @@ export const Navbar = () => {
         </div>
       </div>
       <div className="sm:flex hidden flex-row justify-end gap-4">
+        {currentAccount && (
+          <div className="flex gap-2 items-center">
+            <h1 className="font-epilogue font-semibold text-[18px] text-white text-left">
+              200
+            </h1>
+            <Image src={coins} alt="fund_logo" className="" />
+          </div>
+        )}
         <CustomButton
           btnType="button"
-          title={address ? "Create a campaign" : "Connect"}
-          styles={address ? "bg-[#1dc071]" : "bg-[#8c6dfd]"}
+          title={currentAccount ? shortenAddress(currentAccount) : "Connect"}
+          styles={currentAccount ? "bg-primary" : "bg-secondary"}
           handleClick={() => {
-            if (address) router.push("/CreateCampaign");
-            else "connect()";
+            if (currentAccount) router.push("/CreateCampaign");
+            else connectWallet();
           }}
         />
-
-        <Link href="/Profile">
-          <div className="w-[52px] h-[52px] rounded-full bg-background flex justify-center items-center cursor-pointer">
-            <Image
-              src={thirdweb}
-              alt="user"
-              className="w-[60%] h-[60%] object-contain"
-            />
-          </div>
-        </Link>
       </div>
       {/* Small screen navigation */}
       <div className="sm:hidden flex justify-between items-center relative">
@@ -123,10 +127,10 @@ export const Navbar = () => {
           <div className="flex mx-4">
             <CustomButton
               btnType="button"
-              title={address ? "Create a campaign" : "Connect"}
-              styles={address ? "bg-primary" : "bg-secondary"}
+              title={currentAccount ? "Create a campaign" : "Connect"}
+              styles={currentAccount ? "bg-primary" : "bg-secondary"}
               handleClick={() => {
-                if (address) router.push("CreateCampaign");
+                if (currentAccount) router.push("CreateCampaign");
                 else connect();
               }}
             />

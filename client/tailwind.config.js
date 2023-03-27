@@ -17,8 +17,8 @@ module.exports = {
         shadowSecondary: '10px 10px 20px rgba(2, 2, 2, 0.25)',
       },
       colors: {
-        primary: '#4ACD8D',
-        secondary: '#8C6DFD',
+        primary: '#E00109',
+        secondary: '#1c1c24',
         background: '#2C2F32',
       },
     },
