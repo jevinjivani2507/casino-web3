@@ -9,7 +9,19 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        epilogue: ['Epilogue', 'sans-serif'],
+      },
+      boxShadow: {
+        shadowSecondary: '10px 10px 20px rgba(2, 2, 2, 0.25)',
+      },
+      colors: {
+        primary: '#4ACD8D',
+        secondary: '#8C6DFD',
+        background: '#2C2F32',
+      },
+    },
   },
   plugins: [],
 }

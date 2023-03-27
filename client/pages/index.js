@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 
 const Home = () => {
   return (
