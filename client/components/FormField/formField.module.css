@@ -1,0 +1,8 @@
+.inpt{
+    transition: ease-in-out 0.3s;
+}
+
+.inpt:focus{
+    border: 2px solid #8C6DFD;
+    box-shadow: 0 0 5px #8C6DFD;
+}

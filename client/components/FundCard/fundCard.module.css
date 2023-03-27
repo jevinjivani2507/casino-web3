@@ -1,0 +1,10 @@
+
+.fundCard{
+    transition: all 0.5s;
+}
+
+.fundCard:hover{
+    background-color: #2c2f3229;
+    scale: 1.05;
+    box-shadow: 0 0 8px 0 #2c2f3229;
+}
