@@ -47,7 +47,7 @@ export default function Home() {
       )
     );
     // console.log(parsedGames.forEach((campaign) => console.log(campaign.remainingDays)));
-    console.log(parsedGames);
+    // console.log(parsedGames);
   }, [games, search]);
 
   return (
