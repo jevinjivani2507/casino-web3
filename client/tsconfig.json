@@ -22,7 +22,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "pages/index.jsx", "pages/Search.jsx", "pages/Profile.jsx", "pages/CreateCampaign.jsx", "components/Loader.jsx", "constants/index.js"  ],
+, "pages/index.jsx", "pages/Search.jsx", "pages/Profile.jsx", "pages/CreateGames.jsx", "components/Loader.jsx", "constants/index.js"  ],
   "exclude": [
     "node_modules"
   ]

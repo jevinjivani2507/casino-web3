@@ -66,7 +66,7 @@ export const Navbar = () => {
           title={currentAccount ? shortenAddress(currentAccount) : "Connect"}
           styles={currentAccount ? "bg-primary" : "bg-secondary"}
           handleClick={() => {
-            if (currentAccount) router.push("/CreateCampaign");
+            if (currentAccount) console.log("You're Connected!!") // router.push("/CreateCampaign");
             else connectWallet();
           }}
         />
