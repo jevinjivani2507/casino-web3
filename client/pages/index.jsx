@@ -5,58 +5,61 @@ import { useStateContext } from "../context";
 
 import { useRouter } from "next/router";
 import { daysLeft } from "../utils";
+
+import { games as Games } from "../constants";
+
 export default function Home() {
   const router = useRouter();
 
   const { search } = router.query;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
-  const [searchCampaigns, setSearchCampaigns] = useState([]);
-  const [parsedCampaigns, setParsedCampaigns] = useState([]);
+  const [games, setGames] = useState([]);
+  const [searchGames, setSearchGames] = useState([]);
+  const [parsedGames, setParsedGames] = useState([]);
 
-  const { address, contract, getCampaigns } = useStateContext();
+  const { address, contract, getGames } = useStateContext();
 
-  const fetchCampaigns = async () => {
+  const fetchGames = async () => {
     setIsLoading(true);
-    const data = await getCampaigns();
-    setCampaigns(data);
+    const data = await getGames();
+    setGames(data);
     console.log(data);
 
     setIsLoading(false);
   };
 
   useEffect(() => {
-    if (contract) fetchCampaigns();
+    if (contract) fetchGames();
   }, [address, contract]);
 
   useEffect(() => {
-    setParsedCampaigns(
-      campaigns
+    setParsedGames(
+      games
         .filter((campaign) => +daysLeft(campaign.deadline) > 0)
         .filter((campaign) => campaign.amountCollected < campaign.target)
     );
-    setSearchCampaigns(
-      parsedCampaigns.filter((campaign) =>
+    setSearchGames(
+      parsedGames.filter((campaign) =>
         campaign.title
           .toLowerCase()
           .includes(search ? search[0].toLowerCase() : "")
       )
     );
-    // console.log(parsedCampaigns.forEach((campaign) => console.log(campaign.remainingDays)));
-    console.log(parsedCampaigns);
-  }, [campaigns, search]);
+    // console.log(parsedGames.forEach((campaign) => console.log(campaign.remainingDays)));
+    console.log(parsedGames);
+  }, [games, search]);
 
   return (
     <div>
       <DisplayGames
         title={
           search
-            ? "Found " + searchCampaigns.length + " for " + search
-            : "All Games " + "(" + parsedCampaigns.length + ")"
+            ? "Found " + searchGames.length + " for " + search
+            : "All Games " + "(" + parsedGames.length + ")"
         }
         isLoading={isLoading}
-        campaigns={search ? searchCampaigns : parsedCampaigns}
+        games={Games}
       />
     </div>
   );

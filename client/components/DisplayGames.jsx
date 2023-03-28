@@ -1,11 +1,12 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { FundCard } from ".";
+import { PoolCard } from ".";
 import { loader } from "../assets";
 
 import Image from "next/image";
 
-const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
+const DisplayGames = ({ title, isLoading, games }) => {
+  
   const router = useRouter();
 
   const handleNavigate = (campaign) => {
@@ -36,16 +37,16 @@ const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
           </div>
         )}
 
-        {!isLoading && campaigns.length === 0 && (
+        {!isLoading && games.length === 0 && (
           <p className="font-epilogue font-semibold text-[14px] leading-[30px] text-[#818183]">
             You have not created any campigns yet
           </p>
         )}
 
         {!isLoading &&
-          campaigns.length > 0 &&
-          campaigns.map((campaign) => (
-            <FundCard
+          games.length > 0 &&
+          games.map((campaign) => (
+            <PoolCard
               key={campaign.id}
               {...campaign}
               handleClick={() => handleNavigate(campaign)}
@@ -56,4 +57,4 @@ const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
   );
 };
 
-export default DisplayCampaigns;
+export default DisplayGames;
