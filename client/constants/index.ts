@@ -38,7 +38,8 @@ export const navlinks = [
 
 export const games = [
   {
-    title: 'Craps By Ustad',
+    id: 1,
+    title: 'Craps',
     image: craps,
     link: '/',
     owner: '0x1C61FeFAA240C08B9D11bE13f599467baAb303F3',
