@@ -6,6 +6,8 @@ import { useStateContext } from "../context";
 import { useRouter } from "next/router";
 import { daysLeft } from "../utils";
 
+import { ethers } from "ethers";
+
 import { games as Games } from "../constants";
 
 export default function Home() {
@@ -18,7 +20,10 @@ export default function Home() {
   const [searchGames, setSearchGames] = useState([]);
   const [parsedGames, setParsedGames] = useState([]);
 
-  const { address, contract, getGames } = useStateContext();
+  const { address, contract, getGames, state, currentAccount } =
+    useStateContext();
+
+  console.log(currentAccount);
 
   const fetchGames = async () => {
     setIsLoading(true);
@@ -46,13 +51,28 @@ export default function Home() {
           .includes(search ? search[0].toLowerCase() : "")
       )
     );
-    // console.log(parsedGames.forEach((campaign) => console.log(campaign.remainingDays)));
-    // console.log(parsedGames);
   }, [games, search]);
+
+  const buttonClicked = async () => {
+    console.log("clicked");
+    const num = 0.1;
+    const data = await state.transactionsContract.exchangeMaticForToken({
+      value: ethers.utils.parseEther("0.00000000000000001"),
+    });
+    console.log("clicked");
+    const balance = await state.transactionsContract.balanceOf(currentAccount);
+    // hex to decimal
+    console.log("clicked");
+    const decimal = parseInt(balance._hex, 16);
+    
+    console.log(decimal);
+    console.log(data);
+  };
 
   return (
     <div>
-      <DisplayGames
+      <button onClick={buttonClicked}>ClickMe</button>
+      {/* <DisplayGames
         title={
           search
             ? "Found " + searchGames.length + " for " + search
@@ -60,7 +80,7 @@ export default function Home() {
         }
         isLoading={isLoading}
         games={Games}
-      />
+      /> */}
     </div>
   );
 }

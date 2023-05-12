@@ -1,155 +1,194 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import "./random.sol";
 
+import "./Factory.sol";
+import "./Random.sol";
 
-contract craps {
-     
-    // array address of the player
-    address[] public players;
+contract CrapsGame {
+    address public owner;
+    address public tokenAddress;
 
-    // mapping of the player and the array of bet 
-    mapping(address =>uint256[]) public playerBets;
+    address[] public registeredPlayers;
 
-    // player winnig amount
+    struct Bet {
+        uint256 diceSum;
+        uint256 diceSumBet;
+        uint256 sumParity;
+        uint256 sumParityBet;
+        uint256 oneDieNum;
+        uint256 oneDieNumBet;
+        uint256 dieOneNum;
+        uint256 dieTwoNum;
+        uint256 dieOneTwoNumBet;
+    }
+
+    mapping(address => Bet) public playerBet;
     mapping(address => uint256) public playerWinningAmount;
 
-    // set playerbet array
-    function setPlayerBets(uint256[] memory _playerBets) public {
-        playerBets[msg.sender] = _playerBets;
+    uint256[] public dice;
 
+    event BetPlaced(address indexed player, uint256 amount);
+    event DiceRolled(address indexed player, uint256 dice1, uint256 dice2);
+    event WinningAmountCalculated(address indexed player, uint256 amount);
+
+    modifier onlyOwner() {
+        require(
+            msg.sender == owner,
+            "Only contract owner can call this function."
+        );
+        _;
     }
-    address contract_address=0x9f3412378B57f97B7873Bc51594Be0A62C604e4a;
+
+    GameFactory tokenContract;
+
+    constructor(address _tokenAddress) {
+        owner = msg.sender;
+        tokenAddress = _tokenAddress;
+        tokenContract = GameFactory(_tokenAddress);
+    }
+
+    address contract_address = 0xda3DEcfF9ABD5D1936b22B3017372BcD07CDa0a8;
     uint256 randomnumber;
-    function fromRandom() public{
+
+    function fromRandom() public {
         VRFv2Consumer v1=VRFv2Consumer(contract_address);
         randomnumber=v1.requestRandomWords();
-
     }
-    function getRandomNum() external view returns(uint256){
+
+    function getRandomNum() external view returns (uint256) {
         return randomnumber;
     }
-    
-    // get player bet array
-    function getPlayerBet() public view returns (uint256[] memory) {
-        return playerBets[msg.sender];
-    }
-  
 
-    // get all players bet array
-    function getPlayerBets() public view returns (uint256[][] memory) {
-        uint256[][] memory playerBetsArray = new uint256[][](players.length);
-        for (uint256 i = 0; i < players.length; i++) {
-            playerBetsArray[i] = playerBets[players[i]];
-        }
-        return playerBetsArray;
-    }
-
-
-    // diceArray
     uint256[] public diceArray;
-    uint256[] public originalDice;
 
-    // function to roll the dice return array of two numbers 2 and 3
-    function rollDice() public returns (uint256[] memory) {
-        // get array of last 6 number of randomnumber
-        uint256[] memory randomNumber = new uint256[](6);
-        for(uint256 i = 0; i < 6; i++) {
-            randomNumber[i] = randomnumber % 10;
+    function rollDice() external onlyOwner {
+        require(dice.length == 0, "Dice have already been rolled.");
+
+        uint256[] memory randomNumberArray = new uint256[](6);
+        for (uint256 i = 0; i < 6; i++) {
+            randomNumberArray[i] = randomnumber % 10;
             randomnumber = randomnumber / 10;
         }
-        // get two random number from the array
 
-        uint256 sumOfRandomNumber = randomNumber[0] + randomNumber[1] + randomNumber[2] + randomNumber[3] + randomNumber[4] + randomNumber[5];
+        uint256 sumOfRandomNumber = randomNumberArray[0] +
+            randomNumberArray[1] +
+            randomNumberArray[2] +
+            randomNumberArray[3] +
+            randomNumberArray[4] +
+            randomNumberArray[5];
 
         uint256[] memory diceRandomArray = new uint256[](sumOfRandomNumber);
 
         uint256 ct = 0;
-        for(uint256 i = 0; i < 6; i++) {
-            for(uint256 j = 0; j < randomNumber[i]; j++) {
+        for (uint256 i = 0; i < 6; i++) {
+            for (uint256 j = 0; j < randomNumberArray[i]; j++) {
                 diceRandomArray[ct] = i + 1;
-                ct = ct+1;
+                ct = ct + 1;
             }
         }
 
         diceArray = diceRandomArray;
 
-        uint256[] memory dice = new uint256[](2);
-
-        uint256 random1 = randomnumber % 100; 
+        uint256 randomIndex1 = randomnumber % 100;
         randomnumber = randomnumber / 100;
-        uint256 random2 = randomnumber % 100;
+        uint256 randomIndex2 = randomnumber % 100;
         randomnumber = randomnumber / 100;
 
-        dice[0] = diceRandomArray[random1%sumOfRandomNumber];
-        dice[1] = diceRandomArray[random2%sumOfRandomNumber];
+        dice.push(diceArray[randomIndex1 % sumOfRandomNumber]);
+        dice.push(diceArray[randomIndex2 % sumOfRandomNumber]);
 
-        originalDice = dice;
+        emit DiceRolled(msg.sender, dice[0], dice[1]);
 
+        _calculateWinningAmounts();
+    }
+
+    function getDice() external view returns (uint256[] memory) {
         return dice;
-
     }
 
-    // getDiceArray
-    function getDiceArray() public view returns (uint256[] memory) {
-        return diceArray;
-    }
-
-    // getOriginalDice
-    function getOriginalDice() public view returns (uint256[] memory) {
-        return originalDice;
-    }
-
-    // set winnig amount of each player
-    function setPlayerWinningAmount(uint256 _winningAmount, address _player) public {
-        playerWinningAmount[_player] = _winningAmount;
-    }
-
-    // calculate the winning amount of each player
-    function calculateWinningAmount() public {
-        uint256[] memory dice = rollDice();
-        uint256 sum = dice[0] + dice[1];
-        
-        for (uint256 i = 0; i < players.length; i++) {
-            // winning amount of each player
-            uint256 winningAmount = 0;
-
-            // get player bet
-            uint256[] memory playerBet = playerBets[players[i]];
-
-            // check sum
-            if(playerBet[0] == sum) {
-                winningAmount += (playerBet[1] * 7)/10;
-            }
-
-            // check first
-            if(playerBet[2] == dice[0] || playerBet[2] == dice[1]) {
-                winningAmount += (playerBet[3] * 5)/10;
-            }
-
-            // check second
-            if(playerBet[4] == dice[0] || playerBet[4] == dice[1]) {
-                winningAmount += (playerBet[5] * 7)/10;
-            }
-
-            // check oddEven
-            if(playerBet[6] == 1 && (sum % 2 == 0)) {
-                winningAmount += (playerBet[7] * 3)/10;
-            } else if(playerBet[6] == 2 && (sum % 2 != 0)) {
-                winningAmount += (playerBet[7] * 3)/10;
-            }
-            setPlayerWinningAmount(winningAmount, players[i]);
+    function _calculateWinningAmounts() internal {
+        for (uint256 i = 0; i < registeredPlayers.length; i++) {
+            address player = registeredPlayers[i];
+            uint256 winningAmount = _calculateWinningAmount(player);
+            playerWinningAmount[player] = winningAmount;
+            emit WinningAmountCalculated(player, winningAmount);
         }
     }
 
-    // get an array of winning amount of each player
-    function getPlayerWinningAmount() public view returns (uint256[] memory) {
-        uint256[] memory winningAmount = new uint256[](players.length);
-        for (uint256 i = 0; i < players.length; i++) {
-            winningAmount[i] = playerWinningAmount[players[i]];
+    function _calculateWinningAmount(
+        address _player
+    ) internal view returns (uint256) {
+        uint256 winningAmount = 0;
+        Bet memory bet = playerBet[_player];
+
+        if (bet.diceSum == dice[0] + dice[1]) {
+            winningAmount += (bet.diceSumBet * 17) / 10;
         }
+
+        if (bet.sumParity == 0 && (dice[0] + dice[1]) % 2 == 0) {
+            winningAmount += (bet.sumParityBet * 19) / 10;
+        }
+        if (bet.sumParity == 1 && (dice[0] + dice[1]) % 2 == 1) {
+            winningAmount += (bet.sumParityBet * 19) / 10;
+        }
+
+        if (bet.oneDieNum == dice[0] || bet.oneDieNum == dice[1]) {
+            winningAmount += (bet.oneDieNumBet * 25) / 10;
+        }
+
+        if (
+            (bet.dieOneNum == dice[0] && bet.dieTwoNum == dice[1]) ||
+            (bet.dieOneNum == dice[1] && bet.dieTwoNum == dice[0])
+        ) {
+            winningAmount += bet.dieOneTwoNumBet * 10;
+        }
+
         return winningAmount;
     }
 
+    function balanceOfPlayer(address _player) external view returns (uint256) {
+        return tokenContract.balanceOf(_player);
+    }
 
+    function setPlayerBet(uint256[] memory _bet) external {
+        uint256 sumAllBet = (_bet[1] + _bet[3] + _bet[5] + _bet[8]) * (10 ** 18);
+        require(tokenContract.approveToken(address(this), sumAllBet),"paisa nathi");
+        require(
+            tokenContract.transferFrom(
+                msg.sender,
+                address(this),
+                sumAllBet
+            ),
+            "Failed to transfer CHP tokens."
+        );
+
+        registeredPlayers.push(msg.sender);
+
+        playerBet[msg.sender] = Bet(
+            _bet[0],
+            _bet[1],
+            _bet[2],
+            _bet[3],
+            _bet[4],
+            _bet[5],
+            _bet[6],
+            _bet[7],
+            _bet[8]
+        );
+
+
+        
+
+        emit BetPlaced(msg.sender, sumAllBet);
+    }
+
+    function getPlayerBet(address _player) external view returns (Bet memory) {
+        return playerBet[_player];
+    }
+
+    function getPlayerWinningAmount(
+        address _player
+    ) external view returns (uint256) {
+        return playerWinningAmount[_player];
+    }
 }

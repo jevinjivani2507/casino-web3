@@ -1,8 +1,9 @@
 import { useState, useContext, createContext } from 'react';
 import { ethers } from 'ethers';
 
-import { useAddress, useContract, useMetamask, useContractWrite } from '@thirdweb-dev/react';
-import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
+import { contractABI, contractAddress } from "../utils/constants";
+
+export const TransactionContext = createContext();
 
 const StateContext = createContext();
 
@@ -51,6 +52,7 @@ export const StateContextProvider = ({ children }) => {
         currentAccount,
         connectWallet,
         setCurrentAccount,
+        state
       }}
     >
       {children}
