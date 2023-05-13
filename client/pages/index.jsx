@@ -71,8 +71,8 @@ export default function Home() {
 
   return (
     <div>
-      <button onClick={buttonClicked}>ClickMe</button>
-      {/* <DisplayGames
+      {/* <button onClick={buttonClicked}>ClickMe</button> */}
+      <DisplayGames
         title={
           search
             ? "Found " + searchGames.length + " for " + search
@@ -80,7 +80,8 @@ export default function Home() {
         }
         isLoading={isLoading}
         games={Games}
-      /> */}
+      />
+      
     </div>
   );
 }

@@ -6,3 +6,5 @@ export { default as DisplayGames } from './DisplayGames';
 export { default as PoolCard } from './PoolCard/PoolCard';
 export { default as CountBox } from './CountBox';
 export { default as Loader } from './Loader';
+export { default as Bet } from './Bet';
+export { default as Winner } from './Winner';

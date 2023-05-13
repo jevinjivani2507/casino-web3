@@ -9,14 +9,13 @@ const DisplayGames = ({ title, isLoading, games }) => {
   
   const router = useRouter();
 
-  const handleNavigate = (campaign) => {
-    console.log(campaign.title);
+  const handleNavigate = (game) => {
     router.push(
       {
-        pathname: `/CampaignDetails/${campaign.title}`,
-        query: { ...campaign },
+        pathname: `/BacarratGameDetails/${game.title}`,
+        query: { ...game },
       },
-      `/CampaignDetails/${campaign.title}`
+      `/BacarratGameDetails/${game.title}`
     );
   };
 
@@ -39,17 +38,17 @@ const DisplayGames = ({ title, isLoading, games }) => {
 
         {!isLoading && games.length === 0 && (
           <p className="font-epilogue font-semibold text-[14px] leading-[30px] text-[#818183]">
-            You have not created any campigns yet
+            You have not created any game yet
           </p>
         )}
 
         {!isLoading &&
           games.length > 0 &&
-          games.map((campaign) => (
+          games.map((game) => (
             <PoolCard
-              key={campaign.id}
-              {...campaign}
-              handleClick={() => handleNavigate(campaign)}
+              key={game.id}
+              {...game}
+              handleClick={() => handleNavigate(game)}
             />
           ))}
       </div>
