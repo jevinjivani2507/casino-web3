@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./Factory.sol";
-import "./Random.sol";
+import "./Token.sol";
+import "./random.sol";
+import "./library.sol";
 
-contract BacarratGame {
+contract BaccaratGame {
 
     address public owner;
     address public tokenAddress;
     uint256 public betAmount;
+    bool closed=false;
 
     struct Card {
         uint256 cardNumber;
@@ -32,16 +34,24 @@ contract BacarratGame {
         _;
     }
 
-    GameFactory tokenContract;
+    Token tokenContract;
 
-    constructor(address _tokenAddress, uint256 _betAmount) {
-        owner = msg.sender;
+    constructor(address _tokenAddress, uint256 _betAmount, address _owner) {
+        owner = _owner;
         tokenAddress = _tokenAddress;
         betAmount = _betAmount;
-        tokenContract = GameFactory(_tokenAddress);
+        tokenContract = Token(_tokenAddress);
     }
 
+    function getOwner() public view returns(address){
+        return owner;
+    }
+
+    mapping(address => bool) registered;
+
     function registerPlayer() public {
+        require(registered[msg.sender]==false,"Already registered");
+        require(closed==false,"Game already started");
         require(registeredPlayers.length<=8, "Max players reached.");
         require(!players[msg.sender].isRegistered, "Player already registered.");
         require(tokenContract.balanceOf(msg.sender) >= betAmount, "Insufficient balance.");
@@ -50,38 +60,35 @@ contract BacarratGame {
         players[msg.sender].isRegistered = true;
         players[msg.sender].betAmount = betAmount;
         registeredPlayers.push(msg.sender);
-        tokenContract.transferFrom(msg.sender, address(this), betAmount);
+        tokenContract.transferFrom(msg.sender, tokenAddress, betAmount);
+        registered[msg.sender]=true;
     }
 
     address contract_address = 0xda3DEcfF9ABD5D1936b22B3017372BcD07CDa0a8;
     uint256 randomnumber;
 
-    function fromRandom() public {
-        // VRFv2Consumer v1=VRFv2Consumer(contract_address);
-        // randomnumber=v1.requestRandomWords();
+    function fromRandom() public onlyOwner{
+        VRFv2Consumer v1=VRFv2Consumer(contract_address);
+        randomnumber=v1.requestRandomWords();
 
-        randomnumber=12345678912345678912345678912345;
+        // randomnumber=12345678912345678912345678912345;
     }
 
-    function getRandomNum() external view returns (uint256) {
-        return randomnumber;
-    }
+    // function getRandomNum() external view returns (uint256) {
+    //     return randomnumber;
+    // }
 
-    function distributeCards() public {
+    function distributeCards() public onlyOwner{
+        fromRandom();
         require(registeredPlayers.length>1, "Not enough players");
 
         for (uint256 i = 0; i < registeredPlayers.length; i++) {
+            uint256 suit1;uint256 suit2;uint256 card1;uint256 card2;
 
-            uint256 number1 = (randomnumber%10) + 1;//5
-            randomnumber = randomnumber/10;
-            uint256 number2 = (randomnumber%10) + 1;//6
-            randomnumber = randomnumber/10;
+            (randomnumber,suit1,suit2,card1,card2) = probability.getCard(randomnumber);
 
-            uint256 suit1 = (number1%4) + 1;
-            uint256 suit2 = (number2%4) + 1;
-
-            players[registeredPlayers[i]].card1.cardNumber = ((number1**number2)%13)+1;
-            players[registeredPlayers[i]].card2.cardNumber = (((number1*2)+(number2*2))%13)+1;
+            players[registeredPlayers[i]].card1.cardNumber = card1;
+            players[registeredPlayers[i]].card2.cardNumber = card2;
 
             players[registeredPlayers[i]].card1.cardSuit = suit1==1 ? "Spades" : suit1==2 ? "Hearts" : suit1==3 ? "Clubs" : "Diamonds";
             players[registeredPlayers[i]].card2.cardSuit = suit2==1 ? "Spades" : suit2==2 ? "Hearts" : suit2==3 ? "Clubs" : "Diamonds";
@@ -90,11 +97,12 @@ contract BacarratGame {
     }
 
     function playerCards(address _player) public view returns (Card memory, Card memory) {
+        require(_player==msg.sender,"Panchat mat kar");
         return (players[_player].card1, players[_player].card2);
     }
 
     // calculate winning amount for each player
-    function calculateCardSumValue() public {
+    function calculateCardSumValue() external onlyOwner{
 
         for (uint256 i = 0; i < registeredPlayers.length; i++) {
             uint256 cardSum = 0;
@@ -105,40 +113,21 @@ contract BacarratGame {
             if (players[registeredPlayers[i]].card2.cardNumber < 10) {
                 cardSum += players[registeredPlayers[i]].card2.cardNumber;
             }
-            playerCardSumValue[registeredPlayers[i]] = winningAmount;
+            playerCardSumValue[registeredPlayers[i]] = cardSum;
         }
     }
 
     // get winning amount to each playe
     function getCardSumValue(address _player) public view returns (uint256) {
+        require(_player==msg.sender,"Panchat mat kar");
         return playerCardSumValue[_player];
     }
 
-    function distributeWinningAmount() public {
+    function distributeWinningAmount() public onlyOwner{
         uint256 totalWinningAmount = getTokenBalance();
-
-        // for (uint256 i = 0; i < registeredPlayers.length; i++) {
-        //     totalWinningAmount += playerCardSumValue[registeredPlayers[i]];
-        // }
 
         address[] memory top3Players;
         top3Players = getTop3Players();
-
-        // if(registeredPlayers.length>=5){
-        //     tokenContract.transfer(top3Players[0], (totalWinningAmount * 40) / 100);
-        //     tokenContract.transfer(top3Players[1], (totalWinningAmount * 30) / 100);
-        //     tokenContract.transfer(top3Players[2], (totalWinningAmount * 20) / 100);
-        // }else if(registeredPlayers.length==2) {
-        //     tokenContract.transfer(top3Players[0], (totalWinningAmount*90)/100);
-        // }else if(registeredPlayers.length==3){
-        //     tokenContract.transfer(top3Players[0], (totalWinningAmount*6)/10);
-        //     tokenContract.transfer(top3Players[1], (totalWinningAmount*3)/10);
-
-        // }else if(registeredPlayers.length==4){
-        //     tokenContract.transfer(top3Players[0], (totalWinningAmount*5)/10);
-        //     tokenContract.transfer(top3Players[1], (totalWinningAmount*4)/10);
-        // }
-        
         if(registeredPlayers.length>=5){
             playerWinningAmount[top3Players[0]] = (totalWinningAmount * 40) / 100;
             playerWinningAmount[top3Players[1]] = (totalWinningAmount * 30) / 100;
@@ -153,19 +142,24 @@ contract BacarratGame {
             playerWinningAmount[top3Players[0]] = (totalWinningAmount*90)/100;
         }
 
+        closed=true;
+
     }
 
     function getWinningAmount(address _player) public view returns (uint256) {
+        require(_player==msg.sender,"Panchat mat kar");
         return playerWinningAmount[_player];
     }
 
     function withdrawWinningAmount() public {
         require(playerWinningAmount[msg.sender] > 0, "You have no winning amount");
-        tokenContract.transfer(msg.sender, playerWinningAmount[msg.sender]);
+        uint256 amount = playerWinningAmount[msg.sender];
+        tokenContract.approveToken(tokenAddress, amount);
+        tokenContract.transferFrom(tokenAddress, msg.sender, amount);
         playerWinningAmount[msg.sender] = 0;
     }
    
-    function getTop3Players() public view returns (address[] memory) {
+    function getTop3Players() public view onlyOwner returns (address[] memory) {
         address[] memory top3Players = new address[](3);
         uint256[] memory top3PlayersCardValueSum = new uint256[](3);
         for (uint256 i = 0; i < registeredPlayers.length; i++) {
@@ -189,8 +183,8 @@ contract BacarratGame {
         return top3Players;
     }
 
-    function getTokenBalance() public view returns (uint256){
-        return tokenContract.balanceOf(address(this));
+    function getTokenBalance() public view onlyOwner returns (uint256){
+        return registeredPlayers.length*betAmount;
     }
 
 

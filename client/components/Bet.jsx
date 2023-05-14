@@ -25,9 +25,9 @@ const Bet = (props) => {
         </div>
         <div className="flex justify-center items-center text-[#3a3a43]">X</div>
         <div className="flex justify-center items-center text-[20px] font-semibold text-white">
-            {props.Multiplier}
-          </div>
-          <div className="flex justify-center items-center text-[#3a3a43]">=</div>
+          {props.Multiplier}
+        </div>
+        <div className="flex justify-center items-center text-[#3a3a43]">=</div>
         <div className="content-end w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#E00000] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
           {props.winning}
         </div>

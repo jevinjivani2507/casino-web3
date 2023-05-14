@@ -14,6 +14,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
         bool exists; // whether a requestId exists
         uint256[] randomWords;
     }
+    
     mapping(uint256 => RequestStatus)
         public s_requests; /* requestId --> requestStatus */
     VRFCoordinatorV2Interface COORDINATOR;
@@ -30,6 +31,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
         COORDINATOR = VRFCoordinatorV2Interface(0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed);
         s_subscriptionId = subscriptionId;
     }
+
     function requestRandomWords() external returns (uint256 requestId){
         requestId = COORDINATOR.requestRandomWords(
             keyHash,
@@ -44,6 +46,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
         emit RequestSent(requestId, numWords);
         return lastRequestnumber;
     }
+
     function getRandomNumber() external view returns (uint256){
         return lastRequestnumber;
     }

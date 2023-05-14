@@ -31,7 +31,6 @@ contract DynamicNFT is ERC721URIStorage {
             '<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">',
             '<rect width="1000" height="1000" fill="#415214"/>',
             '</svg>'
-
         );
         return string(abi.encodePacked(
             "data:application/json;base64,",

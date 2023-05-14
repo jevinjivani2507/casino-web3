@@ -4,6 +4,10 @@ import styles from "./modal.module.css";
 
 import { CustomButton } from "../../components";
 
+import { useRouter } from "next/router";
+
+import { useStateContext } from "../../context";
+
 const dropIn = {
   hidden: {
     y: "-100vh",
@@ -30,11 +34,29 @@ interface ModalProps {
   handleClose: () => void;
 }
 
-const handleWithdraw = () => {
-  console.log("withdraw");
-};
 
 const Modal = ({ text, handleClose }: ModalProps) => {
+
+  const { createCrapsGame } = useStateContext();
+
+  const router = useRouter();
+
+  const handleWithdraw = () => {
+    console.log("withdraw");
+  };
+  
+  const _createCrapsGame = () => {
+    console.log("create craps game");
+    createCrapsGame();
+    router.push("/");
+  };
+  
+  const createBaccaratGame = () => {
+    console.log("create baccarat game");
+
+    router.push("/CreateBaccaratGame");
+  };
+
   return (
     <div className="flex justify-center items-center">
       <Backdrop onClink={handleClose}>
@@ -55,13 +77,13 @@ const Modal = ({ text, handleClose }: ModalProps) => {
                 btnType="button"
                 title="Craps"
                 styles="w-fit bg-[#E00000]"
-                handleClick={handleWithdraw}
+                handleClick={_createCrapsGame}
               />
               <CustomButton
                 btnType="button"
                 title="Bacarrat"
                 styles="w-fit bg-[#E00000]"
-                handleClick={handleWithdraw}
+                handleClick={createBaccaratGame}
               />
 
               <CustomButton

@@ -44,7 +44,7 @@ export const StateContextProvider = ({ children }) => {
         const account = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        console.log(account);
+        // console.log(account);
         setCurrentAccount(account[0]);
       }
       const provider = new ethers.providers.Web3Provider(ethereum);
@@ -89,7 +89,7 @@ export const StateContextProvider = ({ children }) => {
         crapsContract,
         baccaratContract,
       });
-      console.log(state);
+      // console.log(state);
     } catch (error) {
       console.log(error);
     }
@@ -100,11 +100,11 @@ export const StateContextProvider = ({ children }) => {
     const balance = await state.tokenContract.balanceOf(currentAccount);
     const decimal = parseInt(balance._hex, 16);
     setTokenBalance(decimal);
-    console.log(tokenBalance);
+    // console.log(tokenBalance);
   };
 
   useEffect(() => {
-    console.log(tokenBalance);
+    // console.log(tokenBalance);
   }, [tokenBalance]);
 
   const getCrapsGames = async () => {
@@ -137,6 +137,30 @@ export const StateContextProvider = ({ children }) => {
     return parsedData;
   };
 
+  const createBaccaratGame = async (betAmount) => {
+    if (!state.baccaratFactoryContract) return;
+    const tx = await state.baccaratFactoryContract.createBaccaratGame();
+    await tx.wait();
+    console.log("Game Created");
+  };
+
+  const createCrapsGame = async () => {
+    if (!state.crapsFactoryContract) return;
+    const tx = await state.crapsFactoryContract.createCrapsGame();
+    await tx.wait();
+    console.log("Game Created");
+  };
+
+  const getCrapsGameContract = async (gameAddress) => {
+    if (!state.crapsContractABI) return;
+    const crapsGameContract = new ethers.Contract(
+      gameAddress,
+      crapsContractABI,
+      state.signer
+    );
+    return crapsGameContract;
+  };
+
   return (
     <StateContext.Provider
       value={{
@@ -149,6 +173,9 @@ export const StateContextProvider = ({ children }) => {
         getCrapsGames,
         getBaccaratGames,
         state, 
+        createBaccaratGame,
+        createCrapsGame,
+        getCrapsGameContract,
       }}
     >
       {children}

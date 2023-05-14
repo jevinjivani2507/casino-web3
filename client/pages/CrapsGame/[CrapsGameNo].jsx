@@ -8,30 +8,73 @@ import { CustomButton, CountBox, Loader, Bet } from "../../components";
 import { logo, coins } from "../../assets";
 import { one, two, three, four, five, six } from "../../assets/die";
 
-import { diamonds } from "../../assets/card";
+import { crapsContractABI } from "../../utils/constants";
+
+import { ethers } from "ethers";
 
 const CrapsGameNo = () => {
   const router = useRouter();
-  const { donate, getDonations, contract, address } = useStateContext();
+
+  const { state, connectWallet, getCrapsGameContract } = useStateContext();
+
+  if (!state.provider) connectWallet();
 
   const { query } = useRouter();
-  console.log(query.pId);
-  const campaignId = query.pId;
-  const [isLoading, setIsLoading] = useState(false);
-  const [donators, setDonators] = useState([]);
+  console.log(query);
 
-  const handleWithdraw = async () => {
-    console.log("paisa aapo");
+  const [gameContract, setGameContract] = useState();
+
+  const buttonClicked = async () => {
+    // console.log(state);
+
+    const crapsGame = new ethers.Contract(
+      query.CrapsGameNo,
+      crapsContractABI,
+      state.signer
+    );
+
+    setGameContract(crapsGame);
+
+    const getBetAmount = await crapsGame.getDice();
+    console.log(getBetAmount);
+
+    // // hex to decimal
+    // const decimal = ethers.BigNumber.from(getBetAmount._hex).toString();
+    // console.log(decimal);
+
+    // setBetAmount(decimal);
+
+    // const getRegisteredPlayers = await baccaratGame.getTokenBalance();
+    // console.log(getRegisteredPlayers);
+
+    // const decimal2 = ethers.BigNumber.from(getRegisteredPlayers._hex).toString();
+    // console.log(decimal2);
+
+    console.log(crapsGame);
   };
 
-  const num1 = "diamond";
-  const num2 = "10";
-  const num3 = num1 + "_" + num2;
+  // useEffect(() => {
+  //   console.log(query.CrapsGameNo);
+  //   const GameContract = getCrapsGameContract(query.CrapsGameNo);
+  //   console.log(GameContract);
+  //   setGameContract(GameContract);
+  // }, [query]);
+
+  useEffect(() => {
+    console.log(gameContract);
+  }, [gameContract]);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleWithdraw = async () => {
+
+    console.log("paisa aapo");
+  };
 
   return (
     <div>
       {isLoading && <Loader />}
-
+      <button onClick={buttonClicked}>ClickMe</button>
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
           <div>
@@ -53,7 +96,7 @@ const CrapsGameNo = () => {
                   0x1C61FeFAA240C08B9D11bE13f599467baAb303F3
                 </h4>
                 <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
-                  Game Owner 
+                  Game Owner
                 </p>
               </div>
             </div>
@@ -103,7 +146,7 @@ const CrapsGameNo = () => {
               <Bet
                 title="Sum"
                 number="7"
-                Multiplier="1.8"q 
+                Multiplier="1.8"
                 amount="20"
                 winning="10"
               />
@@ -131,6 +174,12 @@ const CrapsGameNo = () => {
               />
             </div>
           </div>
+          <CustomButton
+            btnType="button"
+            title="Place Bet"
+            styles="w-fit bg-[#E00000] mt-5"
+            handleClick={handleWithdraw}
+          />
         </div>
       </div>
     </div>
