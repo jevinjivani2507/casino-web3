@@ -6,16 +6,15 @@ import { loader } from "../assets";
 import Image from "next/image";
 
 const DisplayGames = ({ title, isLoading, games }) => {
-  
   const router = useRouter();
 
   const handleNavigate = (game) => {
     router.push(
       {
-        pathname: `/BacarratGameDetails/${game.title}`,
+        pathname: `/${game.type}Game/${game.gameAddress}`,
         query: { ...game },
       },
-      `/BacarratGameDetails/${game.title}`
+      `/${game.type}Game/${game.gameAddress}`
     );
   };
 
@@ -47,7 +46,9 @@ const DisplayGames = ({ title, isLoading, games }) => {
           games.map((game) => (
             <PoolCard
               key={game.id}
-              {...game}
+              title={game.gameAddress}
+              owner={game.ownerAddress}
+              description={game.type}
               handleClick={() => handleNavigate(game)}
             />
           ))}

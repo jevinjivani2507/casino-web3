@@ -107,6 +107,36 @@ export const StateContextProvider = ({ children }) => {
     console.log(tokenBalance);
   }, [tokenBalance]);
 
+  const getCrapsGames = async () => {
+    if (!state.crapsFactoryContract) return;
+    const data = await state.crapsFactoryContract.getStruct();
+
+    const parsedData = data.map((game) => {
+      return {
+        type: "Craps",
+        gameAddress: game.gameAddress,
+        ownerAddress: game.ownerAddress,
+      };
+    });
+    // console.log(parsedData);
+    return parsedData;
+  };
+
+  const getBaccaratGames = async () => {
+    if (!state.baccaratFactoryContract) return;
+    const data = await state.baccaratFactoryContract.getStruct();
+     
+    const parsedData = data.map((game) => {
+      return {
+        type: "Baccarat",
+        gameAddress: game.gameAddress,
+        ownerAddress: game.ownerAddress,
+      };
+    });
+
+    return parsedData;
+  };
+
   return (
     <StateContext.Provider
       value={{
@@ -116,7 +146,9 @@ export const StateContextProvider = ({ children }) => {
         tokenBalance,
         getTokenBalance,
         setTokenBalance,
-        state,
+        getCrapsGames,
+        getBaccaratGames,
+        state, 
       }}
     >
       {children}

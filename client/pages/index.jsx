@@ -18,56 +18,52 @@ export default function Home() {
   const { search } = router.query;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [games, setGames] = useState([]);
-  const [searchGames, setSearchGames] = useState([]);
-  const [parsedGames, setParsedGames] = useState([]);
+  const [games, setGames] = useState();
 
-  const { address, contract, getGames, state, currentAccount } =
-    useStateContext();
-
-  console.log(currentAccount);
+  const { state, getCrapsGames, getBaccaratGames } = useStateContext();
 
   const fetchGames = async () => {
-    setIsLoading(true);
-    const data = await getGames();
-    setGames(data);
-    console.log(data);
+    if(!state) return;
+    console.log("here2");
+    // setIsLoading(true);
+    if(!state.crapsFactoryContract && !state.baccaratFactoryContract) return;
+    const crapsGames = await getCrapsGames();
+    const baccaratGames = await getBaccaratGames();
+    console.log(baccaratGames);
+    console.log(typeof crapsGames);
+    
+    let fetchedGames = [...crapsGames, ...baccaratGames];
 
+    console.log(games);
+
+    setGames(fetchedGames);
+
+    
     setIsLoading(false);
   };
-
+  
+  console.log(games);
   useEffect(() => {
-    if (contract) fetchGames();
-  }, [address, contract]);
-
-  useEffect(() => {
-    setParsedGames(
-      games
-        .filter((campaign) => +daysLeft(campaign.deadline) > 0)
-        .filter((campaign) => campaign.amountCollected < campaign.target)
-    );
-    setSearchGames(
-      parsedGames.filter((campaign) =>
-        campaign.title
-          .toLowerCase()
-          .includes(search ? search[0].toLowerCase() : "")
-      )
-    );
-  }, [games, search]);
+    console.log(state);
+    if (state) {
+      console.log("here3");
+      fetchGames();
+    }
+  }, [state]);
 
   const buttonClicked = async () => {
     console.log(state);
 
-    // const data3 = await state.baccaratFactoryContract.createBaccaratGame();
-    // console.log(data3);
+    const data3 = await state.baccaratFactoryContract.getBaccaratGames();
+    console.log(data3);
 
-    const data = await state.baccaratFactoryContract.getBaccaratGames();
+    const data = await state.crapsFactoryContract.getCrapsGames();
     console.log(data);
 
     // console.log(data[2]);
 
-    const data6 = await state.baccaratFactoryContract.getStruct();
-    console.log(data6);
+    // const data6 = await state.baccaratFactoryContract.getStruct();
+    // console.log(data6);
 
     // const baccaratGame = new ethers.Contract(
     //   data[2],
@@ -84,16 +80,9 @@ export default function Home() {
 
   return (
     <div>
-      <button onClick={buttonClicked}>ClickMe</button>
-      <DisplayGames
-        title={
-          search
-            ? "Found " + searchGames.length + " for " + search
-            : "All Games " + "(" + parsedGames.length + ")"
-        }
-        isLoading={isLoading}
-        games={Games}
-      />
+      {/* <button onClick={buttonClicked}>ClickMe</button> */}
+
+      <DisplayGames title={"All Games"} isLoading={isLoading} games={games || []} />
     </div>
   );
 }

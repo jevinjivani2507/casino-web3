@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 
@@ -9,15 +9,52 @@ import { logo, coins } from "../../assets";
 
 import { diamonds, clubs, hearts, spades } from "../../assets/card";
 
+import { baccaratContractABI } from "../../utils/constants";
+
+import { ethers } from "ethers";
+
 const BacarratGameNo = () => {
   const router = useRouter();
-  const { donate, getDonations, contract, address } = useStateContext();
+  const { state } = useStateContext();
+
+  console.log(state.provider);
+
+  if(!state.provider) return <div> Loading... </div>;
 
   const { query } = useRouter();
-  console.log(query.pId);
-  const campaignId = query.pId;
+
+  const [gameOwner, setGameOwner] = useState("");
+
+  // get path from query
+  const path = router.asPath.split("/");
+  console.log(typeof path[2]);
+
+  useEffect(() => {
+    setGameOwner(query.ownerAddress);
+  }, [query]);
+
+  const getGameContract = async (address) => {
+    const baccaratGame = new ethers.Contract(
+      address,
+      baccaratContractABI,
+      state.signer
+    );
+    return baccaratGame;
+  };
+
+  useEffect(() => {
+    console.log(state);
+    console.log(path[2]);
+    
+    const baccaratGame = getGameContract(path[2]);
+    console.log(baccaratGame);
+
+    const owner = baccaratGame.getOwner();
+    console.log(owner);
+    setGameOwner(owner);
+  }, []);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [donators, setDonators] = useState([]);
 
   const handleWithdraw = async () => {
     console.log("paisa aapo");
@@ -44,8 +81,8 @@ const BacarratGameNo = () => {
                 </div>
                 <div>
                   <h4 className="font-epilogue font-semibold text-[14px] text-white break-all">
-                    {/* {query.owner} */}
-                    0x1C61FeFAA240C08B9D11bE13f599467baAb303F3
+                    {gameOwner}
+                    {/* 0x1C61FeFAA240C08B9D11bE13f599467baAb303F3 */}
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
                     Game Owner
@@ -55,10 +92,10 @@ const BacarratGameNo = () => {
             </div>
             <div className="text-right">
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
-                 Amount
+                Amount
               </h4>
               <h4 className="font-epilogue font-semibold text-[40px] text-[#808191] uppercase">
-                 200 X 5
+                200 X 5
               </h4>
             </div>
           </div>
