@@ -38,7 +38,7 @@ const PoolCard = ({
           </p>
         </div>
 
-        <div className="flex justify-between flex-wrap mt-[15px] gap-2">
+        {/* <div className="flex justify-between flex-wrap mt-[15px] gap-2">
           <div className="flex flex-col">
             <h4 className="font-epilogue font-semibold text-[14px] text-[#b2b3bd] leading-[22px]">
               {amountCollected}
@@ -55,7 +55,7 @@ const PoolCard = ({
               Time Left
             </p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center mt-[20px] gap-[12px]">
           <div className="w-[30px] h-[30px] rounded-full flex justify-center items-center bg-[#13131a]">

@@ -48,7 +48,7 @@ const BacarratGameNo = () => {
                     0x1C61FeFAA240C08B9D11bE13f599467baAb303F3
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
-                    10 Campaigns
+                    Game Owner
                   </p>
                 </div>
               </div>

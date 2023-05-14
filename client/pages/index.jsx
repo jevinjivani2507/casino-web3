@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { DisplayGames } from "../components";
+import { DisplayGames, Modal } from "../components";
 import { useStateContext } from "../context";
 
 import { useRouter } from "next/router";
@@ -9,6 +9,8 @@ import { daysLeft } from "../utils";
 import { ethers } from "ethers";
 
 import { games as Games } from "../constants";
+
+import { baccaratContractABI, crapsContractABI } from "../utils/constants";
 
 export default function Home() {
   const router = useRouter();
@@ -54,24 +56,35 @@ export default function Home() {
   }, [games, search]);
 
   const buttonClicked = async () => {
-    console.log("clicked");
-    const num = 0.1;
-    const data = await state.transactionsContract.exchangeMaticForToken({
-      value: ethers.utils.parseEther("0.00000000000000001"),
-    });
-    console.log("clicked");
-    const balance = await state.transactionsContract.balanceOf(currentAccount);
-    // hex to decimal
-    console.log("clicked");
-    const decimal = parseInt(balance._hex, 16);
-    
-    console.log(decimal);
+    console.log(state);
+
+    // const data3 = await state.baccaratFactoryContract.createBaccaratGame();
+    // console.log(data3);
+
+    const data = await state.baccaratFactoryContract.getBaccaratGames();
     console.log(data);
+
+    // console.log(data[2]);
+
+    const data6 = await state.baccaratFactoryContract.getStruct();
+    console.log(data6);
+
+    // const baccaratGame = new ethers.Contract(
+    //   data[2],
+    //   baccaratContractABI,
+    //   state.signer
+    // );
+
+    // const data2 = await baccaratGame.getOwner();
+
+    // console.log(data2);
+
+    // console.log(baccaratGame);
   };
 
   return (
     <div>
-      {/* <button onClick={buttonClicked}>ClickMe</button> */}
+      <button onClick={buttonClicked}>ClickMe</button>
       <DisplayGames
         title={
           search
@@ -81,7 +94,6 @@ export default function Home() {
         isLoading={isLoading}
         games={Games}
       />
-      
     </div>
   );
 }

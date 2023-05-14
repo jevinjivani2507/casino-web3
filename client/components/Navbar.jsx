@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { CustomButton } from "./";
+import { CustomButton, Modal } from "./";
 import { logo, sun, menu, search, thirdweb } from "../assets";
 import { navlinks } from "../constants";
 import Image from "next/image";
@@ -13,13 +13,16 @@ import { shortenAddress } from "../utils";
 
 import coins from "../assets/Coins.svg";
 
+import { AnimatePresence } from "framer-motion";
+
 export const Navbar = () => {
   const router = useRouter();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  const { currentAccount, connectWallet } = useStateContext();
+  const { currentAccount, connectWallet, tokenBalance, getTokenBalance } =
+    useStateContext();
 
   const handleSearchClick = () => {
     router.push(
@@ -30,6 +33,17 @@ export const Navbar = () => {
       `/search?=${searchValue}`
     );
   };
+
+  const [userBalance, setUserBalance] = useState(0);
+
+  useEffect(() => {
+    setUserBalance(getTokenBalance());
+  }, [tokenBalance, currentAccount]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const close = () => setModalOpen(false);
+  const open = () => setModalOpen(true);
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-between mb-[35px] gap-6">
@@ -52,21 +66,31 @@ export const Navbar = () => {
           />
         </div>
       </div>
+
       <div className="sm:flex hidden flex-row justify-end gap-4">
         {currentAccount && (
-          <div className="flex gap-2 items-center">
+          <button
+            onClick={() => router.push("/ExchangeTokens")}
+            className="flex gap-2 items-center"
+          >
             <h1 className="font-epilogue font-semibold text-[18px] text-white text-left">
-              200
+              {tokenBalance}
             </h1>
             <Image src={coins} alt="fund_logo" className="" />
-          </div>
+          </button>
         )}
+        <button
+          onClick={() => (modalOpen ? close() : open())}
+          className="content-end w-fit py-[10px] sm:px-[20px] px-[10px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[30px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
+        >
+          +
+        </button>
         <CustomButton
           btnType="button"
           title={currentAccount ? shortenAddress(currentAccount) : "Connect"}
           styles={currentAccount ? "bg-primary" : "bg-secondary"}
           handleClick={() => {
-            if (currentAccount) console.log() // router.push("/CreateCampaign");
+            if (currentAccount);
             else connectWallet();
           }}
         />
@@ -137,6 +161,10 @@ export const Navbar = () => {
           </div>
         </div>
       </div>
+
+      <AnimatePresence intial={false} onExitComplete={() => null}>
+        {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} />}
+      </AnimatePresence>
     </div>
   );
 };

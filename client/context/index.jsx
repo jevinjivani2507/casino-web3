@@ -1,22 +1,37 @@
-import { useState, useContext, createContext } from 'react';
-import { ethers } from 'ethers';
+import { useState, useContext, createContext, useEffect } from "react";
+import { ethers } from "ethers";
 
-import { contractABI, contractAddress } from "../utils/constants";
+import {
+  tokenContractAddress,
+  crapsFactoryContractAddress,
+  baccaratFactoryContractAddress,
+  crapsContractAddress,
+  baccaratContractAddress,
+  tokenContractABI,
+  crapsFactoryContractABI,
+  baccaratFactoryContractABI,
+  crapsContractABI,
+  baccaratContractABI,
+} from "../utils/constants";
 
 export const TransactionContext = createContext();
 
 const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
-
   const [currentAccount, setCurrentAccount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState(0);
 
   //------Template Code------//
   const [state, setState] = useState({
     provider: null,
     signer: null,
-    transactionsContract: null,
+    tokenContract: null,
+    crapsFactoryContract: null,
+    baccaratFactoryContract: null,
+    crapsContractABI: null,
+    baccaratContractABI: null,
   });
 
   const connectWallet = async () => {
@@ -34,30 +49,79 @@ export const StateContextProvider = ({ children }) => {
       }
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const transactionsContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
+      const tokenContract = new ethers.Contract(
+        tokenContractAddress,
+        tokenContractABI,
         signer
       );
-      setState({ provider, signer, transactionsContract });
+      const crapsFactoryContract = new ethers.Contract(
+        crapsFactoryContractAddress,
+        crapsFactoryContractABI,
+        signer
+      );
+
+      const baccaratFactoryContract = new ethers.Contract(
+        baccaratFactoryContractAddress,
+        baccaratFactoryContractABI,
+        signer
+      );
+
+      const crapsContract = new ethers.Contract(
+        crapsContractAddress,
+        crapsContractABI,
+        signer
+      );
+
+      const baccaratContract = new ethers.Contract(
+        baccaratContractAddress,
+        baccaratContractABI,
+        signer
+      );
+
+      getTokenBalance();
+
+      setState({
+        provider,
+        signer,
+        tokenContract,
+        crapsFactoryContract,
+        baccaratFactoryContract,
+        crapsContract,
+        baccaratContract,
+      });
+      console.log(state);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const getTokenBalance = async () => {
+    if (!state.tokenContract) return;
+    const balance = await state.tokenContract.balanceOf(currentAccount);
+    const decimal = parseInt(balance._hex, 16);
+    setTokenBalance(decimal);
+    console.log(tokenBalance);
+  };
+
+  useEffect(() => {
+    console.log(tokenBalance);
+  }, [tokenBalance]);
 
   return (
     <StateContext.Provider
-      value={{ 
+      value={{
         currentAccount,
         connectWallet,
         setCurrentAccount,
-        state
+        tokenBalance,
+        getTokenBalance,
+        setTokenBalance,
+        state,
       }}
     >
       {children}
     </StateContext.Provider>
-  )
-}
+  );
+};
 
 export const useStateContext = () => useContext(StateContext);

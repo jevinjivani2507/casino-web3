@@ -8,3 +8,4 @@ export { default as CountBox } from './CountBox';
 export { default as Loader } from './Loader';
 export { default as Bet } from './Bet';
 export { default as Winner } from './Winner';
+export { default as Modal } from './Modal/Modal';
