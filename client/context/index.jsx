@@ -137,9 +137,9 @@ export const StateContextProvider = ({ children }) => {
     return parsedData;
   };
 
-  const createBaccaratGame = async (betAmount) => {
+  const createBaccaratContract = async (betAmount) => {
     if (!state.baccaratFactoryContract) return;
-    const tx = await state.baccaratFactoryContract.createBaccaratGame();
+    const tx = await state.baccaratFactoryContract.createBaccaratGame(betAmount);
     await tx.wait();
     console.log("Game Created");
   };
@@ -158,6 +158,7 @@ export const StateContextProvider = ({ children }) => {
       crapsContractABI,
       state.signer
     );
+    await crapsGameContract.wait();
     return crapsGameContract;
   };
 
@@ -173,7 +174,7 @@ export const StateContextProvider = ({ children }) => {
         getCrapsGames,
         getBaccaratGames,
         state, 
-        createBaccaratGame,
+        createBaccaratContract,
         createCrapsGame,
         getCrapsGameContract,
       }}

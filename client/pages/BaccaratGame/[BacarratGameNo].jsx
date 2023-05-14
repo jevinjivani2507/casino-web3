@@ -14,7 +14,7 @@ import { baccaratContractABI } from "../../utils/constants";
 import { ethers } from "ethers";
 
 const BacarratGameNo = () => {
-  const { state, connectWallet } = useStateContext();
+  const { currentAccount, state, connectWallet } = useStateContext();
   const router = useRouter();
   const { query } = useRouter();
   console.log(query);
@@ -28,10 +28,13 @@ const BacarratGameNo = () => {
   const [gameOwner, setGameOwner] = useState("");
 
   const [gameContract, setGameContract] = useState();
+  const [gameContractBalance, setGameContractBalance] = useState(0);
+
+  const [contractOwner, setContractOwner] = useState("");
+
+  const [playerRegistered, setPlayerRegistered] = useState(false);
 
   const buttonClicked = async () => {
-    // console.log(state);
-
     const baccaratGame = new ethers.Contract(
       query.BacarratGameNo,
       baccaratContractABI,
@@ -49,11 +52,25 @@ const BacarratGameNo = () => {
 
     setBetAmount(decimal);
 
-    const getRegisteredPlayers = await baccaratGame.getTokenBalance();
+    const getContractBalance = await baccaratGame.getTokenBalance();
+    console.log(getContractBalance);
+
+    const decimal2 = ethers.BigNumber.from(getContractBalance._hex).toString();
+    console.log(decimal2);
+
+    setGameContractBalance(decimal2);
+
+    const getContractOwner = await baccaratGame.owner();
+    console.log(getContractOwner);
+
+    setContractOwner(getContractOwner);
+
+    const getRegisteredPlayers = await baccaratGame.isPlayerRegistered(
+      currentAccount
+    );
     console.log(getRegisteredPlayers);
 
-    const decimal2 = ethers.BigNumber.from(getRegisteredPlayers._hex).toString();
-    console.log(decimal2);
+    setPlayerRegistered(getRegisteredPlayers);
 
     console.log(baccaratGame);
   };
@@ -61,46 +78,17 @@ const BacarratGameNo = () => {
   const [betAmount, setBetAmount] = useState(0);
   const [registeredPlayers, setRegisteredPlayers] = useState(0);
 
-  // useEffect(() => {
-  //   const getGameContract = async () => {
-  //     try {
-  //       const baccaratGame = new ethers.Contract(
-  //         query.BacarratGameNo,
-  //         baccaratContractABI,
-  //         state.signer
-  //       );
-  //       return baccaratGame;
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   if(!state.provider) connectWallet();
-  //   if(state.provider){
-  //     const gameContract = getGameContract();
-  //     setGameContract(gameContract);
-  //   }
-  // }, [query.BacarratGameNo, state.provider, state.signer]);
-
-  useEffect(() => {
-    console.log(gameContract);
-    console.log(betAmount);
-    // const gameBetAmount = gameContract.betAmount();
-    // setBetAmount(gameBetAmount);
-  }, [gameContract]);
-
-  useEffect(() => {
-    if(!gameContract) return;
-    const getBetAmount = gameContract.betAmount();
-    console.log(getBetAmount);
-  }, [gameContract]);
-
-
-  
-
   const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
     console.log("paisa aapo");
+  };
+
+  const registerPlayer = async () => {
+    const registerPlayer = await gameContract.registerPlayer();
+    registerPlayer.wait();
+    setPlayerRegistered(true);
+    console.log(registerPlayer);
   };
 
   // token -> exchange matic
@@ -131,7 +119,7 @@ const BacarratGameNo = () => {
                 </div>
                 <div>
                   <h4 className="font-epilogue font-semibold text-[14px] text-white break-all">
-                    {gameOwner}
+                    {contractOwner}
                     {/* 0x1C61FeFAA240C08B9D11bE13f599467baAb303F3 */}
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
@@ -145,7 +133,7 @@ const BacarratGameNo = () => {
                 Amount
               </h4>
               <h4 className="font-epilogue font-semibold text-[40px] text-[#808191] uppercase">
-                {betAmount} X 5
+                {betAmount} X {setGameContractBalance / betAmount || 0}
               </h4>
             </div>
           </div>
@@ -153,18 +141,32 @@ const BacarratGameNo = () => {
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               Your Cards
             </h4>
-            <div className="flex">
-              <Image
-                src={diamonds[1]}
-                alt="user"
-                className="w-[15%] h-[60%] object-contain"
-              />
-              <Image
-                src={diamonds[13]}
-                alt="user"
-                className="w-[15%] h-[60%] object-contain"
-              />
-            </div>
+            {playerRegistered ? (
+              <div className="flex">
+                <Image
+                  src={diamonds[1]}
+                  alt="user"
+                  className="w-[15%] h-[60%] object-contain"
+                />
+                <Image
+                  src={diamonds[13]}
+                  alt="user"
+                  className="w-[15%] h-[60%] object-contain"
+                />
+              </div>
+            ) : (
+              <>
+                <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
+                  You have not registered yet
+                </h4>
+                <CustomButton
+                  btnType="button"
+                  title="Register"
+                  styles="w-fit bg-[#E00000]"
+                  handleClick={registerPlayer}
+                />
+              </>
+            )}
           </div>
           <>
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./Token.sol";
-import "./random.sol";
+import "./Random.sol";
 import "./library.sol";
 
 contract BaccaratGame {
@@ -48,6 +48,10 @@ contract BaccaratGame {
     }
 
     mapping(address => bool) registered;
+
+    function isPlayerRegistered(address _player) public view returns(bool){
+        return registered[_player];
+    }
 
     function registerPlayer() public {
         require(registered[msg.sender]==false,"Already registered");

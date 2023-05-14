@@ -8,29 +8,61 @@ const Bet = (props) => {
         {props.title}
       </h4>
       <div className="flex space-x-4">
-        <div className="w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
-          {props.number}
-        </div>
-        {props.number2 && (
+        {props.betPlaced == "true" ? (
           <div className="w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
-            {props.number2}
+            {props.number}
           </div>
+        ) : (
+          <input
+            onChange={(e) =>
+              props.setBet({ ...props.bet, bet: e.target.value })
+            }
+            className="w-[60px] py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
+          />
         )}
+        {props.double &&
+          (props.betPlaced == "true" ? (
+            <div className="w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
+              {props.number2}
+            </div>
+          ) : (
+            <input
+              onChange={(e) =>
+                props.setBet({ ...props.bet, bet2: e.target.value })
+              }
+              className="w-[60px] py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
+            />
+          ))}
         <div className="flex justify-center items-center text-[#3a3a43]">X</div>
         <div className="flex space-x-2">
-          <div className="flex justify-center items-center text-[20px] font-semibold text-white">
-            {props.amount}
-          </div>
+          {props.betPlaced == "true" ? (
+            <div className="flex justify-center items-center text-[20px] font-semibold text-white">
+              {props.amount}
+            </div>
+          ) : (
+            <input
+              onChange={(e) =>
+                props.setBet({ ...props.bet, amount: e.target.value })
+              }
+              className="w-[60px] py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
+            />
+          )}
           <Image src={coins} alt="fund_logo" className="" />
         </div>
         <div className="flex justify-center items-center text-[#3a3a43]">X</div>
         <div className="flex justify-center items-center text-[20px] font-semibold text-white">
           {props.Multiplier}
         </div>
-        <div className="flex justify-center items-center text-[#3a3a43]">=</div>
-        <div className="content-end w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#E00000] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
-          {props.winning}
-        </div>
+        {props.betPlaced == "true" && (
+          <div className="flex justify-center items-center text-[#3a3a43]">
+            =
+          </div>
+        )}
+        {props.betPlaced == "true" && (
+          <div className="content-end w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#E00000] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]">
+            {props.winning}
+          </div>
+        )}
       </div>
     </>
   );

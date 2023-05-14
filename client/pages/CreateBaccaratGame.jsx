@@ -9,13 +9,14 @@ const CreateBaccaratGame = () => {
 
     const router = useRouter();
 
-  const { createBaccaratGame } = useStateContext();
+  const { state, createBaccaratContract } = useStateContext();
 
     const [inputValue, setInputValue] = useState("");
 
     const handleCreate = async () => {
         console.log(inputValue);
-        await createBaccaratGame(inputValue);
+        console.log(state);
+        await createBaccaratContract(inputValue);
         router.push("/");
     };
 
