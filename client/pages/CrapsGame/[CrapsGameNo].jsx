@@ -73,6 +73,10 @@ const CrapsGameNo = () => {
     // const decimal2 = ethers.BigNumber.from(getRegisteredPlayers._hex).toString();
     // console.log(decimal2);
 
+    // if(gameOwner.toLowerCase() !== currentAccount){
+    //   rollDice();
+    // }
+
     console.log(crapsGame);
   };
 
@@ -83,7 +87,6 @@ const CrapsGameNo = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
-
     const withdraw = await gameContract.distributeWinningAmount();
 
     console.log(withdraw);
@@ -136,11 +139,12 @@ const CrapsGameNo = () => {
 
   const rollDice = async () => {
     // setIsLoading(true);
-    try{
-    const rollDice = await gameContract.rollDice();
-    console.log(rollDice);
-    await rollDice.wait();
-
+    try {
+      if (gameOwner.toLowerCase() === currentAccount.toLowerCase()) {
+        const rollDice = await gameContract.rollDice();
+        console.log(rollDice);
+        await rollDice.wait();
+      }
     } catch (err) {
       console.log(err);
     }
@@ -161,7 +165,9 @@ const CrapsGameNo = () => {
   const [winningAmount, setWinningAmount] = useState(0);
 
   const _winningAmount = async () => {
-    const winningAmount = await gameContract.getPlayerWinningAmount(currentAccount);
+    const winningAmount = await gameContract.getPlayerWinningAmount(
+      currentAccount
+    );
     const parsedAmount = parseInt(winningAmount._hex);
     setWinningAmount(parsedAmount);
     console.log(winningAmount);
@@ -174,7 +180,7 @@ const CrapsGameNo = () => {
     4: four,
     5: five,
     6: six,
-  }
+  };
 
   return (
     <div>
@@ -206,35 +212,38 @@ const CrapsGameNo = () => {
                 </div>
               </div>
             </div>
-            {gameOwner.toLowerCase() === currentAccount && (
+            {/* {gameOwner.toLowerCase() === currentAccount && ( */}
             <CustomButton
               btnType="button"
               title="RollDice"
               styles="w-fit bg-[#E00000]"
               handleClick={rollDice}
-            />)}
+            />
+            {/* )} */}
           </div>
           <div>
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               OUTCOMES
             </h4>
-            {playerRegistered ? ( dieArray.length > 0 ? (
-              <div className="flex">
-                <Image
-                  src={dies[dieArray[0]]}
-                  alt="user"
-                  className="w-[15%] h-[60%] object-contain"
-                />
-                <Image
-                  src={dies[dieArray[1]]}
-                  alt="user"
-                  className="w-[15%] h-[60%] object-contain"
-                />
-              </div>) : (
-              <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
-                Die Not Rolled Yet
-              </h4>
-            )
+            {playerRegistered ? (
+              dieArray.length > 0 ? (
+                <div className="flex">
+                  <Image
+                    src={dies[dieArray[0]]}
+                    alt="user"
+                    className="w-[15%] h-[60%] object-contain"
+                  />
+                  <Image
+                    src={dies[dieArray[1]]}
+                    alt="user"
+                    className="w-[15%] h-[60%] object-contain"
+                  />
+                </div>
+              ) : (
+                <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
+                  Die Not Rolled Yet
+                </h4>
+              )
             ) : (
               <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
                 You Have Not Placed Any Bet
@@ -247,7 +256,7 @@ const CrapsGameNo = () => {
             </h4>
             <div className="flex space-x-2">
               <div className="flex justify-center items-center text-[20px] font-semibold text-white">
-              {winningAmount}
+                {winningAmount}
               </div>
               <Image src={coins} alt="fund_logo" className="" />
               <CustomButton
@@ -263,7 +272,7 @@ const CrapsGameNo = () => {
         <div className="flex-1">
           <div className="mt-[20px] flex flex-col p-4 bg-[#1c1c24] rounded-[10px]">
             <p className="font-epilogue fount-medium text-[18px] leading-[30px] text-center text-[#808191]">
-              Your Bet X Amount X Multiplier = Payout
+              Your Bet X Amount X Multiplier
             </p>
             <div className="space-y-3">
               <Bet
@@ -302,7 +311,7 @@ const CrapsGameNo = () => {
               <Bet
                 title="Two Die"
                 number={betArray[6]}
-                Multiplier="1.0"
+                Multiplier="10"
                 number2={betArray[7]}
                 amount={betArray[8]}
                 winning="10"

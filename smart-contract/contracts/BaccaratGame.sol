@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./Token.sol";
-import "./Random.sol";
+import "./random.sol";
 import "./library.sol";
 
 contract BaccaratGame {
@@ -49,10 +49,6 @@ contract BaccaratGame {
 
     mapping(address => bool) registered;
 
-    function isPlayerRegistered(address _player) public view returns(bool){
-        return registered[_player];
-    }
-
     function registerPlayer() public {
         require(registered[msg.sender]==false,"Already registered");
         require(closed==false,"Game already started");
@@ -98,10 +94,11 @@ contract BaccaratGame {
             players[registeredPlayers[i]].card2.cardSuit = suit2==1 ? "Spades" : suit2==2 ? "Hearts" : suit2==3 ? "Clubs" : "Diamonds";
 
         }
+
     }
 
     function playerCards(address _player) public view returns (Card memory, Card memory) {
-        require(_player==msg.sender,"Panchat mat kar");
+        require(_player==msg.sender,"You can only view your cards");
         return (players[_player].card1, players[_player].card2);
     }
 
@@ -123,7 +120,7 @@ contract BaccaratGame {
 
     // get winning amount to each playe
     function getCardSumValue(address _player) public view returns (uint256) {
-        require(_player==msg.sender,"Panchat mat kar");
+        require(_player==msg.sender,"You can only view your own value");
         return playerCardSumValue[_player];
     }
 
@@ -151,7 +148,7 @@ contract BaccaratGame {
     }
 
     function getWinningAmount(address _player) public view returns (uint256) {
-        require(_player==msg.sender,"Panchat mat kar");
+        require(_player==msg.sender,"You can only view your own winning amount");
         return playerWinningAmount[_player];
     }
 
@@ -190,6 +187,5 @@ contract BaccaratGame {
     function getTokenBalance() public view onlyOwner returns (uint256){
         return registeredPlayers.length*betAmount;
     }
-
 
 }

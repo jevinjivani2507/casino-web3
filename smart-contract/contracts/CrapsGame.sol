@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
 
 import "./Token.sol";
 import "./random.sol";
@@ -23,12 +23,14 @@ contract CrapsGame{
         uint256 dieOneTwoNumBet;
     }
 
-
-
     mapping(address => Bet) public playerBet;
     mapping(address => uint256) public playerWinningAmount;
 
     uint256[] public dice;
+
+    function diceLength() public view returns(uint256){
+        return dice.length;
+    }
 
     event BetPlaced(address indexed player, uint256 amount);
     event DiceRolled(address indexed player, uint256 dice1, uint256 dice2);
@@ -160,7 +162,7 @@ contract CrapsGame{
 
     function setPlayerBet(uint256[] memory _bet) external {
         uint256 sumAllBet = (_bet[1] + _bet[3] + _bet[5] + _bet[8]);
-        require(tokenContract.approveToken(msg.sender, sumAllBet),"paisa nathi");
+        require(tokenContract.approveToken(msg.sender, sumAllBet),"Approval failed");
         require(
             tokenContract.transferFrom(
                 msg.sender,
@@ -187,7 +189,8 @@ contract CrapsGame{
         emit BetPlaced(msg.sender, sumAllBet);
     }
 
-    function getPlayerBet(address _player) public view onlyOwner returns (Bet memory) {
+    function getPlayerBet(address _player) public view returns (Bet memory) {
+        require(_player==msg.sender, "You can only view your own bets");
         return playerBet[_player];
     }
 
@@ -200,5 +203,6 @@ contract CrapsGame{
         uint256 amount = getPlayerWinningAmount(msg.sender);
         tokenContract.approveToken(tokenAddress, amount);
         tokenContract.transferFrom(tokenAddress, msg.sender, amount);
+        playerWinningAmount[msg.sender]=0;
     }
 }

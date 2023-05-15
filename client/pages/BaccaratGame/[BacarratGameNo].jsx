@@ -80,6 +80,8 @@ const BacarratGameNo = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [playerCards, setPlayerCards] = useState([]);
+
   const handleWithdraw = async () => {
     console.log("paisa aapo");
   };
@@ -90,6 +92,19 @@ const BacarratGameNo = () => {
     setPlayerRegistered(true);
     console.log(registerPlayer);
   };
+
+  const distribitedCards = async () => {
+    const distribitedCards = await gameContract.distributeCards();
+    distribitedCards.wait();
+    console.log(distribitedCards);
+
+    _getPlayerCards();
+  };
+
+  const _getPlayerCards = async () => {
+    const getPlayerCards = await gameContract.playerCards(currentAccount);
+    console.log(getPlayerCards);
+  }
 
   // token -> exchange matic
   //crapsfactory -> create game
@@ -127,13 +142,20 @@ const BacarratGameNo = () => {
                   </p>
                 </div>
               </div>
+
+              { contractOwner.toLowerCase() === currentAccount && <CustomButton
+                btnType="button"
+                title="Distribute Cards"
+                styles="w-fit bg-[#E00000] mt-5"
+                handleClick={distribitedCards}
+              />}
             </div>
             <div className="text-right">
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
                 Amount
               </h4>
               <h4 className="font-epilogue font-semibold text-[40px] text-[#808191] uppercase">
-                {betAmount} X {setGameContractBalance / betAmount || 0}
+                {betAmount} X {gameContractBalance / betAmount || 0}
               </h4>
             </div>
           </div>

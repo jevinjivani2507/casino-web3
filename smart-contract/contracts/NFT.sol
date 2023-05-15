@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
-// import "@openzeppelin/contracts/utils/Strings/uint256.sol";
 import "./random.sol";
 import "./Token.sol";
 
@@ -18,6 +17,8 @@ contract DynamicNFT is ERC721URIStorage {
     mapping(uint256 => string) public tokenIdToLinkName;
     mapping(uint256 => uint256) public nftToValue;
     mapping(uint256 => address) public nftToPlayer;
+    mapping(address => uint256[]) public playerToNFT;
+    
     address tokenAddress;
     Token tokenContract;
 
@@ -41,26 +42,23 @@ contract DynamicNFT is ERC721URIStorage {
 
 
     function GetFromRandom() internal { 
-        // VRFv2Consumer v1=VRFv2Consumer(contract_address);
-        // randomnumber=v1.requestRandomWords();
-        randomnumber=12345678912345678912345678912510;
+        VRFv2Consumer v1=VRFv2Consumer(contract_address);
+        randomnumber=v1.requestRandomWords();
     }
 
 
     function generateNFT(uint256 tokenId) public returns (string memory) {
-        GetFromRandom();
-        string memory fillTo= string.concat("#",(randomnumber%1000000).toString());
-
-
+        string memory link=getLink(tokenId);
         bytes memory svg = abi.encodePacked(
             '<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">',
-            '<rect width="1000" height="1000" fill="#415214"/>',
-            // '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill= "#415214" font-size="200">',
-            tokenIdToLinkName[tokenId],
-            '</text>',
+            '<a href="', link, '">',
+            '<rect width="1000" height="1000" fill="#123456"/>',
+            '</a>',
             '</svg>'
         );
-        // randomnumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randomnumber)));
+
+        tokenIdToLinkName[tokenId];
+        randomnumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randomnumber)));
 
         return string(abi.encodePacked(
             "data:image/svg+xml;base64,",
@@ -93,6 +91,7 @@ contract DynamicNFT is ERC721URIStorage {
 
     }
 
+
     function mint(uint256 _amount) public {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
@@ -102,12 +101,16 @@ contract DynamicNFT is ERC721URIStorage {
         
         
         _mint(msg.sender, newItemId);
+
         nftToPlayer[newItemId]=msg.sender;
+        playerToNFT[msg.sender].push(newItemId);
 
         tokenIdToLink[newItemId] = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
         tokenIdToLinkName[newItemId] = "Never Gonna Give You Up";
 
         _setTokenURI(newItemId, getTokenURI(newItemId));
+
+
 
         if(_amount==5){
             nftToValue[newItemId]=randomnumber%10;
@@ -120,11 +123,26 @@ contract DynamicNFT is ERC721URIStorage {
         }
         randomnumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randomnumber)));
     }
+
+    
     function exchangeNFTForToken(uint256 tokenId) public{
+        require(tokenId!=0,"Token id cant be zero");
         require(nftToPlayer[tokenId]==msg.sender, "Non of you business");
         transferFrom(msg.sender,address(this),tokenId);
         tokenContract.approveToken(tokenAddress, nftToValue[tokenId]);
         tokenContract.transferFrom(tokenAddress,msg.sender,nftToValue[tokenId]);
+
+        for(uint i=0;i<playerToNFT[msg.sender].length;i++){
+            if(playerToNFT[msg.sender][i]==tokenId){
+                playerToNFT[msg.sender][i]=0;
+                break;
+            }
+        }
+    }
+
+    function getNFT(address _player) public view returns(uint256[] memory){
+        require(_player==msg.sender,"You can only view your own NFTS");
+        return playerToNFT[_player];
     }
 
     function update(uint256 tokenId, string memory link, string memory linkName) public {
@@ -136,4 +154,5 @@ contract DynamicNFT is ERC721URIStorage {
 
         _setTokenURI(tokenId, getTokenURI(tokenId));
     }
+
 }
