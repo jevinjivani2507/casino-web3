@@ -4,8 +4,6 @@ import { DisplayGames, Modal } from "../components";
 import { useStateContext } from "../context";
 
 import { useRouter } from "next/router";
-import { daysLeft } from "../utils";
-
 import { ethers } from "ethers";
 
 import { games as Games } from "../constants";
@@ -80,8 +78,6 @@ export default function Home() {
 
   return (
     <div>
-      {/* <button onClick={buttonClicked}>ClickMe</button> */}
-
       <DisplayGames title={"All Games"} isLoading={isLoading} games={games || []} />
     </div>
   );

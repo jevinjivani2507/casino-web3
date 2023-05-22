@@ -18,17 +18,72 @@ const CrapsGameNo = () => {
   const { currentAccount, state, connectWallet, getCrapsGameContract } =
     useStateContext();
 
-  if (!state.provider) connectWallet();
-
-  const { query } = useRouter();
-  console.log(query);
-
   const [gameContract, setGameContract] = useState();
-
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [gameOwner, setGameOwner] = useState("");
 
   const [betArray, setBetArray] = useState([]);
+
+  // const fetchData = async () => {
+  //   if (!state) await connectWallet();
+  //   const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
+  //   setGameContract(crapsGame);
+  //   // const contractOwner = await crapsGame.getOwner();
+  //   // setGameOwner(contractOwner);
+  //   // const playerBet = await crapsGame.playerBet(currentAccount);
+  //   // const parsedArray = playerBet.map((item) => {
+  //   //   return parseInt(item._hex);
+  //   // }
+  //   // );
+  //   // const sum = parsedArray.reduce((a, b) => a + b, 0);
+  //   // setPlayerRegistered(sum > 0 ? true : false);
+  //   // setBetArray(parsedArray);
+  // };
+
+  useEffect(() => {
+    // fetchData();
+    // if (!state.provider) connectWallet();
+
+    const fetchData = async () => {
+      await connectWallet();
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
+      console.log(crapsGame);
+      setGameContract(crapsGame);
+      // const contractOwner = await crapsGame.getOwner();
+      // setGameOwner(contractOwner);
+      // const playerBet = await crapsGame.playerBet(currentAccount);
+      // const parsedArray = playerBet.map((item) => {
+      //   return parseInt(item._hex);
+      // });
+      // const sum = parsedArray.reduce((a, b) => a + b, 0);
+      // setPlayerRegistered(sum > 0 ? true : false);
+      // setBetArray(parsedArray);
+    })();
+  }, [state.signer]);
+
+  useEffect(() => {
+    (async () => {
+      if (!gameContract) return;
+      const contractOwner = await gameContract.getOwner();
+      setGameOwner(contractOwner);
+      const playerBet = await gameContract.playerBet(currentAccount);
+      const parsedArray = playerBet.map((item) => {
+        return parseInt(item._hex);
+      });
+      const sum = parsedArray.reduce((a, b) => a + b, 0);
+      setPlayerRegistered(sum > 0 ? true : false);
+      setBetArray(parsedArray);
+    })();
+  }, [gameContract]);
+
+  const { query } = useRouter();
 
   const buttonClicked = async () => {
     // console.log(state);
@@ -81,7 +136,7 @@ const CrapsGameNo = () => {
   };
 
   useEffect(() => {
-    console.log(gameContract);
+    // console.log(gameContract);
   }, [gameContract]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -134,7 +189,7 @@ const CrapsGameNo = () => {
   const [dieArray, setDieArray] = useState([]);
 
   useEffect(() => {
-    console.log(dieArray);
+    // console.log(dieArray);
   }, [dieArray]);
 
   const rollDice = async () => {
@@ -185,7 +240,7 @@ const CrapsGameNo = () => {
   return (
     <div>
       {isLoading && <Loader />}
-      <button onClick={buttonClicked}>ClickMe</button>
+      {/* <button onClick={buttonClicked}>ClickMe</button> */}
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
           <div className="flex justify-between items-center">
