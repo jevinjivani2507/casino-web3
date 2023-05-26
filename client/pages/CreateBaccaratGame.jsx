@@ -24,7 +24,7 @@ const CreateBaccaratGame = () => {
     <div>
       <div className="space-y-3">
         <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
-          Exchange MATIC for Tokens
+          Baccarat Bet Amount
         </h4>
         <div className="flex items-center space-x-5">
           <input
@@ -38,7 +38,7 @@ const CreateBaccaratGame = () => {
           </div>
           <CustomButton
             btnType="button"
-            title="Transfer"
+            title="Set Bet Amount"
             styles="w-fit bg-[#E00000]"
             handleClick={handleCreate}
           />
