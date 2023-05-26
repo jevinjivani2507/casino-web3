@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 
 import { useStateContext } from "../../context";
-import { CustomButton, CountBox, Loader, Bet } from "../../components";
+import { CustomButton, Loader, Bet } from "../../components";
 
 import { logo, coins } from "../../assets";
 import { one, two, three, four, five, six } from "../../assets/die";
@@ -13,6 +13,7 @@ import { crapsContractABI } from "../../utils/constants";
 import { ethers } from "ethers";
 
 const CrapsGameNo = () => {
+  
   const router = useRouter();
 
   const { currentAccount, state, connectWallet, getCrapsGameContract } =
@@ -24,47 +25,18 @@ const CrapsGameNo = () => {
 
   const [betArray, setBetArray] = useState([]);
 
-  // const fetchData = async () => {
-  //   if (!state) await connectWallet();
-  //   const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
-  //   setGameContract(crapsGame);
-  //   // const contractOwner = await crapsGame.getOwner();
-  //   // setGameOwner(contractOwner);
-  //   // const playerBet = await crapsGame.playerBet(currentAccount);
-  //   // const parsedArray = playerBet.map((item) => {
-  //   //   return parseInt(item._hex);
-  //   // }
-  //   // );
-  //   // const sum = parsedArray.reduce((a, b) => a + b, 0);
-  //   // setPlayerRegistered(sum > 0 ? true : false);
-  //   // setBetArray(parsedArray);
-  // };
-
   useEffect(() => {
-    // fetchData();
-    // if (!state.provider) connectWallet();
-
     const fetchData = async () => {
       await connectWallet();
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
     (async () => {
       const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
-      console.log(crapsGame);
+      // console.log(crapsGame);
       setGameContract(crapsGame);
-      // const contractOwner = await crapsGame.getOwner();
-      // setGameOwner(contractOwner);
-      // const playerBet = await crapsGame.playerBet(currentAccount);
-      // const parsedArray = playerBet.map((item) => {
-      //   return parseInt(item._hex);
-      // });
-      // const sum = parsedArray.reduce((a, b) => a + b, 0);
-      // setPlayerRegistered(sum > 0 ? true : false);
-      // setBetArray(parsedArray);
     })();
   }, [state.signer]);
 
@@ -77,6 +49,7 @@ const CrapsGameNo = () => {
       const parsedArray = playerBet.map((item) => {
         return parseInt(item._hex);
       });
+      console.log(parsedArray);
       const sum = parsedArray.reduce((a, b) => a + b, 0);
       setPlayerRegistered(sum > 0 ? true : false);
       setBetArray(parsedArray);
@@ -85,65 +58,10 @@ const CrapsGameNo = () => {
 
   const { query } = useRouter();
 
-  const buttonClicked = async () => {
-    // console.log(state);
-
-    const crapsGame = new ethers.Contract(
-      query.CrapsGameNo,
-      crapsContractABI,
-      state.signer
-    );
-
-    setGameContract(crapsGame);
-
-    // console.log(crapsGame);
-
-    const contractOwner = await crapsGame.getOwner();
-    // console.log(contractOwner);
-    setGameOwner(contractOwner);
-
-    const isPlayerRegistered = await crapsGame.playerBet(currentAccount);
-    // console.log("here");
-    // setPlayerRegistered(isPlayerRegistered);
-    const parsedArray = isPlayerRegistered.map((item) => {
-      return parseInt(item._hex);
-    });
-    // console.log(parsedArray);
-
-    // sum of array
-    const sum = parsedArray.reduce((a, b) => a + b, 0);
-    setPlayerRegistered(sum > 0 ? true : false);
-
-    setBetArray(parsedArray);
-
-    // // hex to decimal
-    // const decimal = ethers.BigNumber.from(getBetAmount._hex).toString();
-    // console.log(decimal);
-
-    // setBetAmount(decimal);
-
-    // const getRegisteredPlayers = await baccaratGame.getTokenBalance();
-    // console.log(getRegisteredPlayers);
-
-    // const decimal2 = ethers.BigNumber.from(getRegisteredPlayers._hex).toString();
-    // console.log(decimal2);
-
-    // if(gameOwner.toLowerCase() !== currentAccount){
-    //   rollDice();
-    // }
-
-    console.log(crapsGame);
-  };
-
-  useEffect(() => {
-    // console.log(gameContract);
-  }, [gameContract]);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
     const withdraw = await gameContract.distributeWinningAmount();
-
     console.log(withdraw);
   };
 
@@ -161,8 +79,6 @@ const CrapsGameNo = () => {
     ];
 
     const placePlayerBet = await gameContract.setPlayerBet(placedBet);
-
-    console.log(placePlayerBet);
   };
 
   const [dieSum, setDieSum] = useState({
@@ -188,9 +104,6 @@ const CrapsGameNo = () => {
 
   const [dieArray, setDieArray] = useState([]);
 
-  useEffect(() => {
-    // console.log(dieArray);
-  }, [dieArray]);
 
   const rollDice = async () => {
     // setIsLoading(true);
@@ -240,7 +153,6 @@ const CrapsGameNo = () => {
   return (
     <div>
       {isLoading && <Loader />}
-      {/* <button onClick={buttonClicked}>ClickMe</button> */}
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
           <div className="flex justify-between items-center">
@@ -259,7 +171,7 @@ const CrapsGameNo = () => {
                 </div>
                 <div>
                   <h4 className="font-epilogue font-semibold text-[14px] text-white break-all">
-                    {gameOwner}
+                    {gameOwner ? gameOwner : "Loading..."}
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
                     Game Owner

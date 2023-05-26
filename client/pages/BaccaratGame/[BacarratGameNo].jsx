@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 
@@ -218,7 +218,7 @@ const BacarratGameNo = () => {
               <Winner
                 title="First Winner"
                 suit1={diamonds}
-                number1={2}
+                number1={10}
                 suit2={diamonds}
                 number2={4}
               />

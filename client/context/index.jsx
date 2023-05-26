@@ -47,11 +47,13 @@ export const StateContextProvider = ({ children }) => {
       }
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
+
       const tokenContract = new ethers.Contract(
         tokenContractAddress,
         tokenContractABI,
         signer
       );
+
       const crapsFactoryContract = new ethers.Contract(
         crapsFactoryContractAddress,
         crapsFactoryContractABI,
@@ -73,57 +75,27 @@ export const StateContextProvider = ({ children }) => {
         crapsFactoryContract,
         baccaratFactoryContract,
       });
-
     } catch (error) {
       console.log(error);
     }
   };
 
   const getTokenBalance = async () => {
-    if (!state.tokenContract) return;
-    const balance = await state.tokenContract.balanceOf(currentAccount);
-    const decimal = parseInt(balance._hex, 16);
-    setTokenBalance(decimal);
-    // console.log(tokenBalance);
-  };
-
-  useEffect(() => {
-    // console.log(tokenBalance);
-  }, [tokenBalance]);
-
-  const getCrapsGames = async () => {
-    if (!state.crapsFactoryContract) return;
-    const data = await state.crapsFactoryContract.getStruct();
-
-    const parsedData = data.map((game) => {
-      return {
-        type: "Craps",
-        gameAddress: game.gameAddress,
-        ownerAddress: game.ownerAddress,
-      };
-    });
-    // console.log(parsedData);
-    return parsedData;
-  };
-
-  const getBaccaratGames = async () => {
-    if (!state.baccaratFactoryContract) return;
-    const data = await state.baccaratFactoryContract.getStruct();
-     
-    const parsedData = data.map((game) => {
-      return {
-        type: "Baccarat",
-        gameAddress: game.gameAddress,
-        ownerAddress: game.ownerAddress,
-      };
-    });
-
-    return parsedData;
+    try {
+      if (!state.tokenContract) return;
+      const balance = await state.tokenContract.balanceOf(currentAccount);
+      const decimal = parseInt(balance._hex, 16);
+      setTokenBalance(decimal);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const createBaccaratContract = async (betAmount) => {
     if (!state.baccaratFactoryContract) return;
-    const tx = await state.baccaratFactoryContract.createBaccaratGame(betAmount);
+    const tx = await state.baccaratFactoryContract.createBaccaratGame(
+      betAmount
+    );
     await tx.wait();
     console.log("Game Created");
   };
@@ -137,18 +109,12 @@ export const StateContextProvider = ({ children }) => {
 
   const getCrapsGameContract = async (gameAddress) => {
     try {
-      // if (!state.crapsContractABI) return;
-
       const crapsGameContract = new ethers.Contract(
         gameAddress,
         crapsContractABI,
         state.signer
       );
-
-      // await crapsGameContract.wait();
-
       return crapsGameContract;
-
     } catch (error) {
       console.log(error);
     }
@@ -163,9 +129,9 @@ export const StateContextProvider = ({ children }) => {
         tokenBalance,
         getTokenBalance,
         setTokenBalance,
-        getCrapsGames,
-        getBaccaratGames,
-        state, 
+        // getCrapsGames,
+        // getBaccaratGames,
+        state,
         createBaccaratContract,
         createCrapsGame,
         getCrapsGameContract,
