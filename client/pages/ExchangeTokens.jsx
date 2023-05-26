@@ -69,11 +69,11 @@ const ExchangeTokens = () => {
       </div>
       <div className="space-y-3">
         <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
-          Exchange MATIC for Tokens
+          Exchange Tokens for MATIC
         </h4>
         <div className="flex items-center space-x-5">
           <input
-            placeholder="Enter MATIC amount"
+            placeholder="Enter Token amount"
             className="content-end w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#E00000] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
             value={inputValue2}
             onChange={(e) => setInputValue2(e.target.value)}

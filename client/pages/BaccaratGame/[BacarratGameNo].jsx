@@ -14,17 +14,6 @@ import { baccaratContractABI } from "../../utils/constants";
 import { ethers } from "ethers";
 
 const BacarratGameNo = () => {
-  const { currentAccount, state, connectWallet } = useStateContext();
-  const router = useRouter();
-  const { query } = useRouter();
-  console.log(query);
-
-  if (!state.provider) connectWallet();
-
-  useEffect(() => {
-    setGameOwner(query.ownerAddress);
-  }, [query]);
-
   const [gameOwner, setGameOwner] = useState("");
 
   const [gameContract, setGameContract] = useState();
@@ -33,6 +22,57 @@ const BacarratGameNo = () => {
   const [contractOwner, setContractOwner] = useState("");
 
   const [playerRegistered, setPlayerRegistered] = useState(false);
+
+  const { currentAccount, state, connectWallet, getBaccaratGameContract } = useStateContext();
+  const router = useRouter();
+  const { query } = useRouter();
+  console.log(query);
+
+  // if (!state.provider) connectWallet();
+  useEffect(() => {
+    // fetchData();
+    // if (!state.provider) connectWallet();
+
+    const fetchData = async () => {
+      await connectWallet();
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+
+      const baccaratGame = await getBaccaratGameContract(router.query.BaccaratGameNo);
+      console.log(baccaratGame);
+      setGameContract(baccaratGame);
+      // const contractOwner = await crapsGame.getOwner();
+      // setGameOwner(contractOwner);
+      // const playerBet = await crapsGame.playerBet(currentAccount);
+      // const parsedArray = playerBet.map((item) => {
+      //   return parseInt(item._hex);
+      // });
+      // const sum = parsedArray.reduce((a, b) => a + b, 0);
+      // setPlayerRegistered(sum > 0 ? true : false);
+      // setBetArray(parsedArray);
+    })();
+  }, [state.signer]);
+
+  useEffect(() => {
+    (async () => {
+      console.log(gameContract);
+      if(!gameContract)return;
+      const contractOwner = await gameContract.getOwner();
+      setGameOwner(contractOwner);
+
+    })();
+  }, [gameContract]);
+
+
+  useEffect(() => {
+    setGameOwner(query.ownerAddress);
+  }, [query]);
+
 
   const buttonClicked = async () => {
     const baccaratGame = new ethers.Contract(
@@ -75,6 +115,8 @@ const BacarratGameNo = () => {
     console.log(baccaratGame);
   };
 
+  // buttonClicked();
+
   const [betAmount, setBetAmount] = useState(0);
   const [registeredPlayers, setRegisteredPlayers] = useState(0);
 
@@ -115,7 +157,7 @@ const BacarratGameNo = () => {
     <div>
       {isLoading && <Loader />}
 
-      <button onClick={buttonClicked}>ClickMe</button>
+      {/* <button onClick={buttonClicked}>ClickMe</button> */}
 
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
