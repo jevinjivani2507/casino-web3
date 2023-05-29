@@ -122,18 +122,12 @@ export const StateContextProvider = ({ children }) => {
 
   const getBaccaratGameContract = async (gameAddress) => {
     try {
-      // if (!state.crapsContractABI) return;
-
       const baccaratGameContract = new ethers.Contract(
         gameAddress,
         baccaratContractABI,
         state.signer
       );
-
-      // await crapsGameContract.wait();
-
       return baccaratGameContract;
-
     } catch (error) {
       console.log(error);
     }

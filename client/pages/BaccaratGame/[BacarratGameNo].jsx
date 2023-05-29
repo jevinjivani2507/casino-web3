@@ -9,120 +9,65 @@ import { logo, coins } from "../../assets";
 
 import { diamonds, clubs, hearts, spades } from "../../assets/card";
 
-import { baccaratContractABI } from "../../utils/constants";
-
 import { ethers } from "ethers";
 
 const BacarratGameNo = () => {
-  const [gameOwner, setGameOwner] = useState("");
+  const router = useRouter();
 
+  const { currentAccount, state, connectWallet, getBaccaratGameContract } =
+    useStateContext();
+
+  const [gameOwner, setGameOwner] = useState("");
   const [gameContract, setGameContract] = useState();
   const [gameContractBalance, setGameContractBalance] = useState(0);
-
   const [contractOwner, setContractOwner] = useState("");
-
   const [playerRegistered, setPlayerRegistered] = useState(false);
+  const [betAmount, setBetAmount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { currentAccount, state, connectWallet, getBaccaratGameContract } = useStateContext();
-  const router = useRouter();
-  const { query } = useRouter();
-  console.log(query);
-
-  // if (!state.provider) connectWallet();
   useEffect(() => {
-    // fetchData();
-    // if (!state.provider) connectWallet();
-
     const fetchData = async () => {
       await connectWallet();
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
     (async () => {
-
-      const baccaratGame = await getBaccaratGameContract(router.query.BaccaratGameNo);
-      console.log(baccaratGame);
+      if (!router.query.BacarratGameNo) return;
+      const baccaratGame = await getBaccaratGameContract(
+        router.query.BacarratGameNo
+      );
       setGameContract(baccaratGame);
-      // const contractOwner = await crapsGame.getOwner();
-      // setGameOwner(contractOwner);
-      // const playerBet = await crapsGame.playerBet(currentAccount);
-      // const parsedArray = playerBet.map((item) => {
-      //   return parseInt(item._hex);
-      // });
-      // const sum = parsedArray.reduce((a, b) => a + b, 0);
-      // setPlayerRegistered(sum > 0 ? true : false);
-      // setBetArray(parsedArray);
     })();
-  }, [state.signer]);
+  }, [state.signer, router.query.BacarratGameNo]);
 
   useEffect(() => {
     (async () => {
-      console.log(gameContract);
-      if(!gameContract)return;
+      if (!gameContract) return;
       const contractOwner = await gameContract.getOwner();
       setGameOwner(contractOwner);
-
     })();
   }, [gameContract]);
 
-
   useEffect(() => {
-    setGameOwner(query.ownerAddress);
-  }, [query]);
+    (async () => {
+      if (!gameContract) return;
+      const contractOwner = await gameContract.getOwner();
+      setGameOwner(contractOwner);
 
+      const getBetAmount = await gameContract.betAmount();
+      const parsedBetAmount = ethers.BigNumber.from(getBetAmount._hex).toString();
+      setBetAmount(parsedBetAmount);
 
-  const buttonClicked = async () => {
-    const baccaratGame = new ethers.Contract(
-      query.BacarratGameNo,
-      baccaratContractABI,
-      state.signer
-    );
+      const getContractBalance = await gameContract.getTokenBalance();
+      const parsedContractBalance = ethers.BigNumber.from(
+        getContractBalance._hex
+      ).toString();
+      setGameContractBalance(parsedContractBalance);
 
-    setGameContract(baccaratGame);
-
-    const getBetAmount = await baccaratGame.betAmount();
-    console.log(getBetAmount);
-
-    // hex to decimal
-    const decimal = ethers.BigNumber.from(getBetAmount._hex).toString();
-    console.log(decimal);
-
-    setBetAmount(decimal);
-
-    const getContractBalance = await baccaratGame.getTokenBalance();
-    console.log(getContractBalance);
-
-    const decimal2 = ethers.BigNumber.from(getContractBalance._hex).toString();
-    console.log(decimal2);
-
-    setGameContractBalance(decimal2);
-
-    const getContractOwner = await baccaratGame.owner();
-    console.log(getContractOwner);
-
-    setContractOwner(getContractOwner);
-
-    const getRegisteredPlayers = await baccaratGame.isPlayerRegistered(
-      currentAccount
-    );
-    console.log(getRegisteredPlayers);
-
-    setPlayerRegistered(getRegisteredPlayers);
-
-    console.log(baccaratGame);
-  };
-
-  // buttonClicked();
-
-  const [betAmount, setBetAmount] = useState(0);
-  const [registeredPlayers, setRegisteredPlayers] = useState(0);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [playerCards, setPlayerCards] = useState([]);
+    })();
+  }, [gameContract]);
 
   const handleWithdraw = async () => {
     console.log("paisa aapo");
@@ -146,7 +91,7 @@ const BacarratGameNo = () => {
   const _getPlayerCards = async () => {
     const getPlayerCards = await gameContract.playerCards(currentAccount);
     console.log(getPlayerCards);
-  }
+  };
 
   // token -> exchange matic
   //crapsfactory -> create game
@@ -156,8 +101,6 @@ const BacarratGameNo = () => {
   return (
     <div>
       {isLoading && <Loader />}
-
-      {/* <button onClick={buttonClicked}>ClickMe</button> */}
 
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
@@ -176,7 +119,7 @@ const BacarratGameNo = () => {
                 </div>
                 <div>
                   <h4 className="font-epilogue font-semibold text-[14px] text-white break-all">
-                    {contractOwner}
+                    {gameOwner}
                     {/* 0x1C61FeFAA240C08B9D11bE13f599467baAb303F3 */}
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
@@ -185,12 +128,14 @@ const BacarratGameNo = () => {
                 </div>
               </div>
 
-              { contractOwner.toLowerCase() === currentAccount && <CustomButton
-                btnType="button"
-                title="Distribute Cards"
-                styles="w-fit bg-[#E00000] mt-5"
-                handleClick={distribitedCards}
-              />}
+              {contractOwner.toLowerCase() === currentAccount && (
+                <CustomButton
+                  btnType="button"
+                  title="Distribute Cards"
+                  styles="w-fit bg-[#E00000] mt-5"
+                  handleClick={distribitedCards}
+                />
+              )}
             </div>
             <div className="text-right">
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">

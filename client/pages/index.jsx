@@ -60,6 +60,10 @@ export default function Home() {
     }
   }, [state]);
 
+  useEffect(() => {
+    console.log(games);
+  }, [games]);
+
   return (
     <div>
       <DisplayGames

@@ -56,8 +56,6 @@ const CrapsGameNo = () => {
     })();
   }, [gameContract]);
 
-  const { query } = useRouter();
-
   const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
