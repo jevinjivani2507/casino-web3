@@ -42,7 +42,6 @@ export const StateContextProvider = ({ children }) => {
         const account = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        // console.log(account);
         setCurrentAccount(account[0]);
       }
       const provider = new ethers.providers.Web3Provider(ethereum);

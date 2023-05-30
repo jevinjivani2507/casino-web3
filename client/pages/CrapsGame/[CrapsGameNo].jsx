@@ -13,7 +13,6 @@ import { crapsContractABI } from "../../utils/constants";
 import { ethers } from "ethers";
 
 const CrapsGameNo = () => {
-  
   const router = useRouter();
 
   const { currentAccount, state, connectWallet, getCrapsGameContract } =
@@ -22,6 +21,8 @@ const CrapsGameNo = () => {
   const [gameContract, setGameContract] = useState();
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [gameOwner, setGameOwner] = useState("");
+
+  const [gameAddress, setGameAddress] = useState("");
 
   const [betArray, setBetArray] = useState([]);
 
@@ -35,7 +36,6 @@ const CrapsGameNo = () => {
   useEffect(() => {
     (async () => {
       const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
-      // console.log(crapsGame);
       setGameContract(crapsGame);
     })();
   }, [state.signer]);
@@ -102,7 +102,6 @@ const CrapsGameNo = () => {
 
   const [dieArray, setDieArray] = useState([]);
 
-
   const rollDice = async () => {
     // setIsLoading(true);
     try {
@@ -153,6 +152,14 @@ const CrapsGameNo = () => {
       {isLoading && <Loader />}
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
+          <div>
+            <h4 className="font-epilogue font-semibold text-[23px] text-[#a8aabd] break-all">
+              {gameOwner ? gameOwner : "Loading..."}
+            </h4>
+            <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
+              Game Owner
+            </p>
+          </div>
           <div className="flex justify-between items-center">
             <div>
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
@@ -177,14 +184,14 @@ const CrapsGameNo = () => {
                 </div>
               </div>
             </div>
-            {/* {gameOwner.toLowerCase() === currentAccount && ( */}
-            <CustomButton
-              btnType="button"
-              title="RollDice"
-              styles="w-fit bg-[#E00000]"
-              handleClick={rollDice}
-            />
-            {/* )} */}
+            {gameOwner.toLowerCase() === currentAccount && (
+              <CustomButton
+                btnType="button"
+                title="RollDice"
+                styles="w-fit bg-[#E00000]"
+                handleClick={rollDice}
+              />
+            )}
           </div>
           <div>
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">

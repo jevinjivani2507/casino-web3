@@ -7,7 +7,7 @@ import { CustomButton, CountBox, Loader, Winner } from "../../components";
 
 import { logo, coins } from "../../assets";
 
-import { diamonds, clubs, hearts, spades } from "../../assets/card";
+import { diamonds, clubs, hearts, spades, card } from "../../assets/card";
 
 import { ethers } from "ethers";
 
@@ -23,7 +23,20 @@ const BacarratGameNo = () => {
   const [contractOwner, setContractOwner] = useState("");
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [betAmount, setBetAmount] = useState(0);
+  const [winningAmount, setWinningAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [top3Winners, setTop3Winners] = useState([]);
+
+  const [isPlayerRegistered, setIsPlayerRegistered] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+
+  const [playerCards, setPlayerCards] = useState({
+    card1: 0,
+    card2: 0,
+    suit1: "",
+    suit2: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +70,9 @@ const BacarratGameNo = () => {
       setGameOwner(contractOwner);
 
       const getBetAmount = await gameContract.betAmount();
-      const parsedBetAmount = ethers.BigNumber.from(getBetAmount._hex).toString();
+      const parsedBetAmount = ethers.BigNumber.from(
+        getBetAmount._hex
+      ).toString();
       setBetAmount(parsedBetAmount);
 
       const getContractBalance = await gameContract.getTokenBalance();
@@ -66,11 +81,44 @@ const BacarratGameNo = () => {
       ).toString();
       setGameContractBalance(parsedContractBalance);
 
+      const isPlayerRegistered = await gameContract.isPlayerRegistered(
+        currentAccount
+      );
+      setIsPlayerRegistered(isPlayerRegistered);
+
+      const isGameStarted = await gameContract.getGameStatus();
+      console.log(isGameStarted);
+      setIsGameStarted(isGameStarted);
+
+      if (isGameStarted) {
+
+        const { card1, card2, suit1, suit2 } = await getPlayerCards(currentAccount);
+
+        setPlayerCards({
+          card1,
+          card2,
+          suit1,
+          suit2,
+        });
+
+        const getWinningAmount = await gameContract.getWinningAmount(
+          currentAccount
+        );
+        const parsedWinningAmount = ethers.BigNumber.from(
+          getWinningAmount._hex
+        ).toString();
+        setWinningAmount(parsedWinningAmount);
+
+        const top3Winners = await gameContract.getTop3Players();
+        console.log(top3Winners);
+        setTop3Winners(top3Winners);
+      }
     })();
   }, [gameContract]);
 
   const handleWithdraw = async () => {
-    console.log("paisa aapo");
+    const withdrawAmount = await gameContract.withdrawWinningAmount();
+    console.log(withdrawAmount);
   };
 
   const registerPlayer = async () => {
@@ -88,15 +136,22 @@ const BacarratGameNo = () => {
     _getPlayerCards();
   };
 
-  const _getPlayerCards = async () => {
-    const getPlayerCards = await gameContract.playerCards(currentAccount);
-    console.log(getPlayerCards);
-  };
+  const getPlayerCards = async (address) => {
+    const getPlayerCards = await gameContract.playerCards(address);
+    const card1 = ethers.BigNumber.from(getPlayerCards[0][0]._hex).toString();
+    const card2 = ethers.BigNumber.from(getPlayerCards[1][0]._hex).toString();
+    const suit1 = getPlayerCards[0][1].toLowerCase();
+    const suit2 = getPlayerCards[1][1].toLowerCase();
+    console.log(card1, card2);
+    console.log(suit1, suit2);
 
-  // token -> exchange matic
-  //crapsfactory -> create game
-  //craps -> set player bet
-  //craps ->
+    return {
+      card1,
+      card2,
+      suit1,
+      suit2,
+    }
+  };
 
   return (
     <div>
@@ -120,7 +175,6 @@ const BacarratGameNo = () => {
                 <div>
                   <h4 className="font-epilogue font-semibold text-[14px] text-white break-all">
                     {gameOwner}
-                    {/* 0x1C61FeFAA240C08B9D11bE13f599467baAb303F3 */}
                   </h4>
                   <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
                     Game Owner
@@ -128,7 +182,7 @@ const BacarratGameNo = () => {
                 </div>
               </div>
 
-              {contractOwner.toLowerCase() === currentAccount && (
+              {gameOwner.toLowerCase() === currentAccount && !isGameStarted && (
                 <CustomButton
                   btnType="button"
                   title="Distribute Cards"
@@ -150,30 +204,45 @@ const BacarratGameNo = () => {
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               Your Cards
             </h4>
-            {playerRegistered ? (
-              <div className="flex">
-                <Image
-                  src={diamonds[1]}
-                  alt="user"
-                  className="w-[15%] h-[60%] object-contain"
-                />
-                <Image
-                  src={diamonds[13]}
-                  alt="user"
-                  className="w-[15%] h-[60%] object-contain"
-                />
-              </div>
+            {isPlayerRegistered ? (
+              isGameStarted ? (
+                <div className="flex">
+                  {playerCards.suit1 && (
+                    <>
+                      {" "}
+                      <Image
+                        src={card[playerCards.suit1][playerCards.card1]}
+                        alt="user"
+                        className="w-[15%] h-[60%] object-contain"
+                      />
+                      <Image
+                        src={card[playerCards.suit2][playerCards.card2]}
+                        alt="user"
+                        className="w-[15%] h-[60%] object-contain"
+                      />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
+                  Game is not started yet!
+                </h4>
+              )
             ) : (
               <>
-                <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
-                  You have not registered yet
-                </h4>
-                <CustomButton
-                  btnType="button"
-                  title="Register"
-                  styles="w-fit bg-[#E00000]"
-                  handleClick={registerPlayer}
-                />
+                {!isPlayerRegistered && (
+                  <>
+                    <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
+                      You have not Registered Yet!
+                    </h4>
+                    <CustomButton
+                      btnType="button"
+                      title="Register"
+                      styles="w-fit bg-[#E00000]"
+                      handleClick={registerPlayer}
+                    />
+                  </>
+                )}
               </>
             )}
           </div>
@@ -183,7 +252,7 @@ const BacarratGameNo = () => {
             </h4>
             <div className="flex space-x-2">
               <div className="flex justify-center items-center text-[20px] font-semibold text-white">
-                20
+                {winningAmount}
               </div>
               <Image src={coins} alt="fund_logo" className="" />
               <CustomButton
@@ -202,27 +271,14 @@ const BacarratGameNo = () => {
               Winners
             </p>
             <div className="space-y-3">
-              <Winner
-                title="First Winner"
-                suit1={diamonds}
-                number1={10}
-                suit2={diamonds}
-                number2={4}
-              />
-              <Winner
-                title="Second Winner"
-                suit1={diamonds}
-                number1={2}
-                suit2={diamonds}
-                number2={4}
-              />
-              <Winner
-                title="Third Winner"
-                suit1={diamonds}
-                number1={2}
-                suit2={diamonds}
-                number2={4}
-              />
+              {top3Winners.map((winner, index) => (
+                <Winner
+                  key={index}
+                  address={winner}
+                  title={`${winner}`}
+                  getPlayerCards={getPlayerCards}
+                />
+              ))}
             </div>
           </div>
         </div>

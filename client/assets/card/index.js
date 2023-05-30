@@ -118,4 +118,11 @@ const spades = {
   13: spade_13,
 };
 
-export { diamonds, clubs, hearts, spades };
+const card = {
+  diamonds,
+  clubs,
+  hearts,
+  spades,
+};
+
+export { diamonds, clubs, hearts, spades, card };
