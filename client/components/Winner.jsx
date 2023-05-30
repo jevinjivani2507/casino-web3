@@ -1,12 +1,12 @@
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { coins } from "../assets";
-import { useState, useEffect } from "react";
 
 import { diamonds, clubs, hearts, spades, card } from "../assets/card";
 
 const Winner = (props) => {
 
-  if(props.address === "0x0000000000000000000000000000000000000000") return null;
+  
 
   const [playerCards, setPlayerCards] = useState({
     card1: 0,
@@ -24,7 +24,7 @@ const Winner = (props) => {
     })();
   }, []);
 
-
+  if(props.address === "0x0000000000000000000000000000000000000000") return null;
 
   return (
     <>
