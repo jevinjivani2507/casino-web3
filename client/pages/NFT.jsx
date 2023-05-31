@@ -86,7 +86,10 @@ const NFT = () => {
       const parsedNftList = nftList.map((nft) => {
         return ethers.BigNumber.from(nft._hex).toNumber();
       });
-      setNftList(parsedNftList);
+
+      // remove every elemt which has value 0
+      const filteredNftList = parsedNftList.filter((nft) => nft !== 0);
+      setNftList(filteredNftList);
     })();
   }, [state.signer]);
 
@@ -152,17 +155,11 @@ const NFT = () => {
           Withdraw NFT Amount
         </h4>
         <div className="flex items-center space-x-5">
-          {/* <input
-            placeholder="NFT Number"
-            className="content-end w-fit py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#E00000] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
-            value={nftNumber}
-            onChange={(e) => setNftNumber(e.target.value)}
-          /> */}
           <div className="flex justify-center items-center space-x-3 pt-3">
             {nftList.map((nft) => (
               <RadioButton
-                id={"option" + nft}
-                name="radioButtons"
+                id={"nft" + nft}
+                name="nftNameButtons"
                 value={nft}
                 label={nft}
                 selectedOption={selectedNFT}

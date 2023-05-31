@@ -161,7 +161,7 @@ const CrapsGameNo = () => {
       {isLoading && <Loader />}
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
-          <div>
+          <>
             <div className="flex space-x-3">
               <h4 className="font-epilogue font-semibold text-[23px] text-[#a8aabd] break-all">
                 {gameAddress ? gameAddress : "Loading..."}
@@ -182,7 +182,7 @@ const CrapsGameNo = () => {
             <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
               Game Address
             </p>
-          </div>
+          </>
           <div className="flex justify-between items-center">
             <div>
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">

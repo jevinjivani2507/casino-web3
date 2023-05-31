@@ -11,6 +11,9 @@ import { diamonds, clubs, hearts, spades, card } from "../../assets/card";
 
 import { ethers } from "ethers";
 
+import tickIcon from "../../assets/icons/tick.svg";
+import copyIcon from "../../assets/icons/copy.svg";
+
 const BacarratGameNo = () => {
   const router = useRouter();
 
@@ -20,7 +23,7 @@ const BacarratGameNo = () => {
   const [gameOwner, setGameOwner] = useState("");
   const [gameContract, setGameContract] = useState();
   const [gameContractBalance, setGameContractBalance] = useState(0);
-  const [contractOwner, setContractOwner] = useState("");
+  const [gameAddress, setGameAddress] = useState("");
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [betAmount, setBetAmount] = useState(0);
   const [winningAmount, setWinningAmount] = useState(0);
@@ -51,6 +54,7 @@ const BacarratGameNo = () => {
       const baccaratGame = await getBaccaratGameContract(
         router.query.BacarratGameNo
       );
+      setGameAddress(router.query.BacarratGameNo);
       setGameContract(baccaratGame);
     })();
   }, [state.signer, router.query.BacarratGameNo]);
@@ -91,8 +95,9 @@ const BacarratGameNo = () => {
       setIsGameStarted(isGameStarted);
 
       if (isGameStarted) {
-
-        const { card1, card2, suit1, suit2 } = await getPlayerCards(currentAccount);
+        const { card1, card2, suit1, suit2 } = await getPlayerCards(
+          currentAccount
+        );
 
         setPlayerCards({
           card1,
@@ -150,15 +155,40 @@ const BacarratGameNo = () => {
       card2,
       suit1,
       suit2,
-    }
+    };
+  };
+
+  const [copied, setCopied] = useState("");
+
+  const handleCopy = () => {
+    setCopied(gameAddress);
+    navigator.clipboard.writeText(gameAddress);
+    setTimeout(() => setCopied(false), 3000);
   };
 
   return (
     <div>
       {isLoading && <Loader />}
-
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
+          <>
+            <div className="flex space-x-3">
+              <h4 className="font-epilogue font-semibold text-[23px] text-[#a8aabd] break-all">
+                {gameAddress ? gameAddress : "Loading..."}
+              </h4>
+              <div className="copy_btn" onClick={handleCopy}>
+                <Image
+                  src={copied === gameAddress ? tickIcon : copyIcon}
+                  alt={copied === gameAddress ? "tick_icon" : "copy_icon"}
+                  width={12}
+                  height={12}
+                />
+              </div>
+            </div>
+            <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
+              Game Address
+            </p>
+          </>
           <div className="flex justify-between">
             <div>
               <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
