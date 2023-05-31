@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 
 import Image from "next/image";
-import { daysLeft } from "../../utils";
 import styles from "./nftCard.module.css";
 import { SVGNFT } from "..";
 import { logo } from "../../assets";
 import { useStateContext } from "../../context";
 
+import { useRouter } from "next/router";
 import { ethers } from "ethers";
 
+import { dynamicNFTAddress } from "../../utils/constants";
+
 const NFTCard = ({ nft }) => {
-  console.log(nft);
+  const router = useRouter();
 
   const { state, currentAccount } = useStateContext();
 
@@ -34,6 +36,17 @@ const NFTCard = ({ nft }) => {
     })();
   }, [state.signer]);
 
+  const handleClick = () => {
+    router.push(
+      `https://testnets.opensea.io/assets/mumbai/` +
+        dynamicNFTAddress +
+        `/` +
+        nft
+    );
+  };
+
+  if(!nft) return null;
+
   return (
     <div
       className={
@@ -41,34 +54,16 @@ const NFTCard = ({ nft }) => {
         " " +
         styles.fundCard
       }
-      // onClick={handleClick}
+      onClick={handleClick}
     >
-      {/* <Image
-        src={`https://res.cloudinary.com/demo/image/fetch/${image}`}
-        alt="fund"
-        className="w-full h-[158px] object-cover rounded-[15px]"
-        width={288}
-        height={158}
-      /> */}
       <div className="flex justify-center items-center">
         <SVGNFT fill={nFTColor} />
       </div>
 
       <div className="flex flex-col p-4">
-        {/* <div className="flex flex-row items-center mb-[18px]">
-          <img
-            src={tagType}
-            alt="tag"
-            className="w-[17px] h-[17px] object-contain"
-          />
-          <p className="ml-[12px] mt-[2px] font-epilogue font-medium text-[12px] text-[#808191]">
-            Education
-          </p>
-        </div> */}
-
         <div className="block">
           <h3 className="font-epilogue font-semibold text-[16px] text-white text-left leading-[26px] truncate">
-            {nFTName}
+            {nFTName + " | " + nft}
           </h3>
         </div>
 
