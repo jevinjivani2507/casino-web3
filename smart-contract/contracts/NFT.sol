@@ -18,6 +18,7 @@ contract DynamicNFT is ERC721URIStorage {
     mapping(uint256 => uint256) public nftToValue;
     mapping(uint256 => address) public nftToPlayer;
     mapping(address => uint256[]) public playerToNFT;
+    mapping(uint256 => string) public NFTColor;
 
     address tokenAddress;
     Token tokenContract;
@@ -30,6 +31,11 @@ contract DynamicNFT is ERC721URIStorage {
     function getLink(uint256 tokenId) public view returns (string memory) {
         string memory link = tokenIdToLink[tokenId];
         return link;
+    }
+
+    function getNFTColor(uint256 tokenId) public view returns (string memory) {
+        string memory color = NFTColor[tokenId];
+        return color;
     }
 
     function getLinkName(uint256 tokenId) public view returns (string memory) {
@@ -60,24 +66,31 @@ contract DynamicNFT is ERC721URIStorage {
 
     function generateNFT(uint256 tokenId) public returns (string memory) {
         string memory link = getLink(tokenId);
+        string memory color = haxCode();
+        NFTColor[tokenId] = color;
         bytes memory svg = abi.encodePacked(
-            '<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">',
+
+            '<svg width="475" height="560" viewBox="0 0 475 560" fill="none" xmlns="http://www.w3.org/2000/svg">',
             '<a href="',
             link,
             '">',
-            '<rect width="1000" height="1000" fill="',
-            haxCode(),
+            '<g clip-path="url(#clip0_401_2)">',
+            '<path d="M237.33 0L187.033 83.6564L368.604 394.817L221.303 560C221.303 560 337.082 559.313 336.395 560C335.708 560.687 474.11 404.42 474.11 404.42L237.33 0ZM171.281 114.508L0 405.794L134.967 560H185.728L259.936 473.629H177.482L104.785 392.773L221.252 194.694L171.281 114.508Z" fill="',
+            color,
             '" />',
-            "</a>",
-            "</svg>"
+            '</g>',
+            '<defs>',
+            '<clipPath id="clip0_401_2">',
+            '<rect width="474.11" height="560" fill="white"/>',
+            '</clipPath>',
+            '</defs>',
+            '</a>',
+            '</svg>'
+
         );
 
         tokenIdToLinkName[tokenId];
-        randomnumber = uint256(
-            keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, randomnumber)
-            )
-        );
+        // GetFromRandom();
 
         return
             string(
@@ -138,11 +151,7 @@ contract DynamicNFT is ERC721URIStorage {
         ] = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
         tokenIdToLinkName[newItemId] = "Never Gonna Give You Up";
 
-        randomnumber = uint256(
-            keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, randomnumber)
-            )
-        );
+        GetFromRandom();
 
         _setTokenURI(newItemId, getTokenURI(newItemId));
 
@@ -178,6 +187,7 @@ contract DynamicNFT is ERC721URIStorage {
         require(_player == msg.sender, "You can only view your own NFTS");
         return playerToNFT[_player];
     }
+    
 
     function update(
         uint256 tokenId,

@@ -9,7 +9,7 @@ import DynamicNFTAbi from "./DynamicNFT.json";
 export const tokenContractAddress = '0x39c1Fe0d87EaA3e2675C041875F02330814eC935';
 export const crapsFactoryContractAddress = '0x12FBa9F806C6b1ddbe6a033d40afA3c0C4061990';
 export const baccaratFactoryContractAddress = '0x01704afB82A4d4F52f78A33343b1E69c2C6931cA';
-export const dynamicNFTAddress = '0xa345Ee0cCCFD416A35C5D0f9243360bba6fDff77';
+export const dynamicNFTAddress = '0x42fd0dB7c2A38a7c58321a3ffCCa37AA9E84C0cD';
 
 export const tokenContractABI = tokenContractAbi.abi;
 export const crapsFactoryContractABI = crapsFactoryContractAbi.abi;

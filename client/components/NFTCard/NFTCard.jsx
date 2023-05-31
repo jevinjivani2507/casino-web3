@@ -12,6 +12,7 @@ import { ethers } from "ethers";
 import { dynamicNFTAddress } from "../../utils/constants";
 
 const NFTCard = ({ nft }) => {
+
   const router = useRouter();
 
   const { state, currentAccount } = useStateContext();
@@ -36,7 +37,7 @@ const NFTCard = ({ nft }) => {
     })();
   }, [state.signer]);
 
-  const handleClick = () => {
+  const handleImageClick = () => {
     router.push(
       `https://testnets.opensea.io/assets/mumbai/` +
         dynamicNFTAddress +
@@ -45,7 +46,11 @@ const NFTCard = ({ nft }) => {
     );
   };
 
-  if(!nft) return null;
+  const handleClick = () => {
+    router.push(nFTLink);
+  };
+
+  if (!nft) return null;
 
   return (
     <div
@@ -54,13 +59,15 @@ const NFTCard = ({ nft }) => {
         " " +
         styles.fundCard
       }
-      onClick={handleClick}
     >
-      <div className="flex justify-center items-center">
+      <div
+        className="flex justify-center items-center cursor-pointer"
+        onClick={handleImageClick}
+      >
         <SVGNFT fill={nFTColor} />
       </div>
 
-      <div className="flex flex-col p-4">
+      <div className="flex flex-col p-4" onClick={handleClick}>
         <div className="block">
           <h3 className="font-epilogue font-semibold text-[16px] text-white text-left leading-[26px] truncate">
             {nFTName + " | " + nft}
@@ -95,7 +102,6 @@ const NFTCard = ({ nft }) => {
             />
           </div>
           <p className="flex-1 font-epilogue font-normal text-[12px] text-[#808191] truncate">
-            {/* by <span className="text-[#b2b3bd]">{shortenAddress(owner)}</span> */}
             by <span className="text-[#b2b3bd]">{currentAccount}</span>
           </p>
         </div>
