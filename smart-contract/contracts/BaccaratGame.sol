@@ -85,61 +85,9 @@ contract BaccaratGame {
     function fromRandom() public onlyOwner {
         VRFv2Consumer v1 = VRFv2Consumer(contract_address);
         randomnumber = v1.requestRandomWords();
-
-        // randomnumber=12345678912345678912345678912345;
     }
 
-    // function getRandomNum() external view returns (uint256) {
-    //     return randomnumber;
-    // }
-
-    function distributeCards() public onlyOwner {
-        require(closed==false,"Game already started");
-        require(registeredPlayers.length > 1, "Not enough players");
-        fromRandom();
-        closed = true;
-
-        for (uint256 i = 0; i < registeredPlayers.length; i++) {
-            uint256 suit1;
-            uint256 suit2;
-            uint256 card1;
-            uint256 card2;
-
-            (randomnumber, suit1, suit2, card1, card2) = probability.getCard(
-                randomnumber
-            );
-
-            players[registeredPlayers[i]].card1.cardNumber = card1;
-            players[registeredPlayers[i]].card2.cardNumber = card2;
-
-            players[registeredPlayers[i]].card1.cardSuit = suit1 == 1
-                ? "Spades"
-                : suit1 == 2
-                ? "Hearts"
-                : suit1 == 3
-                ? "Clubs"
-                : "Diamonds";
-            players[registeredPlayers[i]].card2.cardSuit = suit2 == 1
-                ? "Spades"
-                : suit2 == 2
-                ? "Hearts"
-                : suit2 == 3
-                ? "Clubs"
-                : "Diamonds";
-        }
-    }
-
-    function playerCards(address _player)
-        public
-        view
-        returns (Card memory, Card memory)
-    {
-        require(_player == msg.sender, "You can only view your cards");
-        return (players[_player].card1, players[_player].card2);
-    }
-
-    // calculate winning amount for each player
-    function calculateCardSumValue() external onlyOwner {
+    function calculateCardSumValue() internal onlyOwner {
         for (uint256 i = 0; i < registeredPlayers.length; i++) {
             uint256 cardSum = 0;
 
@@ -151,12 +99,6 @@ contract BaccaratGame {
             }
             playerCardSumValue[registeredPlayers[i]] = cardSum;
         }
-    }
-
-    // get winning amount to each playe
-    function getCardSumValue(address _player) public view returns (uint256) {
-        require(_player == msg.sender, "You can only view your own value");
-        return playerCardSumValue[_player];
     }
 
     function distributeWinningAmount() public onlyOwner {
@@ -196,6 +138,61 @@ contract BaccaratGame {
 
         closed = true;
     }
+
+    function distributeCards() public onlyOwner {
+        require(closed==false,"Game already started");
+        require(registeredPlayers.length > 1, "Not enough players");
+        fromRandom();
+        closed = true;
+
+        for (uint256 i = 0; i < registeredPlayers.length; i++) {
+            uint256 suit1;
+            uint256 suit2;
+            uint256 card1;
+            uint256 card2;
+
+            (randomnumber, suit1, suit2, card1, card2) = probability.getCard(
+                randomnumber
+            );
+
+            players[registeredPlayers[i]].card1.cardNumber = card1;
+            players[registeredPlayers[i]].card2.cardNumber = card2;
+
+            players[registeredPlayers[i]].card1.cardSuit = suit1 == 1
+                ? "Spades"
+                : suit1 == 2
+                ? "Hearts"
+                : suit1 == 3
+                ? "Clubs"
+                : "Diamonds";
+            players[registeredPlayers[i]].card2.cardSuit = suit2 == 1
+                ? "Spades"
+                : suit2 == 2
+                ? "Hearts"
+                : suit2 == 3
+                ? "Clubs"
+                : "Diamonds";
+        }
+
+        calculateCardSumValue();
+        distributeWinningAmount();
+    }
+
+    function playerCards(address _player)
+        public
+        view
+        returns (Card memory, Card memory)
+    {
+        return (players[_player].card1, players[_player].card2);
+    }
+    
+    // get winning amount to each playe
+    function getCardSumValue(address _player) public view returns (uint256) {
+        require(_player == msg.sender, "You can only view your own value");
+        return playerCardSumValue[_player];
+    }
+
+    
 
     function getWinningAmount(address _player) public view returns (uint256) {
         require(
@@ -257,10 +254,6 @@ contract BaccaratGame {
 
     function isPlayerRegistered(address _player) public view returns (bool) {
         return registered[_player];
-    }
-
-    function getWinningAmount(_player) public view returns (uint256) {
-        return playerWinningAmount[_player];
     }
 
     function getGameStatus() public view returns (bool) {

@@ -37,12 +37,12 @@ interface ModalProps {
 
 const Modal = ({ text, handleClose }: ModalProps) => {
 
-  const { createCrapsGame } = useStateContext();
+  const { state, createCrapsGame } = useStateContext();
 
   const router = useRouter();
 
-  const handleWithdraw = () => {
-    console.log("withdraw");
+  const _createNFT = async () => {
+    router.push("/NFT");
   };
   
   const _createCrapsGame = () => {
@@ -56,6 +56,8 @@ const Modal = ({ text, handleClose }: ModalProps) => {
 
     router.push("/CreateBaccaratGame");
   };
+
+
 
   return (
     <div className="flex justify-center items-center">
@@ -90,7 +92,7 @@ const Modal = ({ text, handleClose }: ModalProps) => {
                 btnType="button"
                 title="NFT"
                 styles="w-fit bg-[#E00000]"
-                handleClick={handleWithdraw}
+                handleClick={_createNFT}
               />
             </div>
           </div>

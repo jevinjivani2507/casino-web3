@@ -5,13 +5,13 @@ import {
   tokenContractAddress,
   crapsFactoryContractAddress,
   baccaratFactoryContractAddress,
-  crapsContractAddress,
-  baccaratContractAddress,
+  dynamicNFTAddress,
   tokenContractABI,
   crapsFactoryContractABI,
   baccaratFactoryContractABI,
   crapsContractABI,
   baccaratContractABI,
+  dynamicNFTABI,
 } from "../utils/constants";
 
 export const TransactionContext = createContext();
@@ -30,6 +30,7 @@ export const StateContextProvider = ({ children }) => {
     tokenContract: null,
     crapsFactoryContract: null,
     baccaratFactoryContract: null,
+    dynamicNFTContract: null,
   });
 
   const connectWallet = async () => {
@@ -65,6 +66,12 @@ export const StateContextProvider = ({ children }) => {
         signer
       );
 
+      const dynamicNFTContract = new ethers.Contract(
+        dynamicNFTAddress,
+        dynamicNFTABI,
+        signer
+      );
+
       await getTokenBalance();
 
       setState({
@@ -73,7 +80,9 @@ export const StateContextProvider = ({ children }) => {
         tokenContract,
         crapsFactoryContract,
         baccaratFactoryContract,
+        dynamicNFTContract,
       });
+
     } catch (error) {
       console.log(error);
     }

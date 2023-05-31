@@ -8,9 +8,9 @@ import { CustomButton, Loader, Bet } from "../../components";
 import { logo, coins } from "../../assets";
 import { one, two, three, four, five, six } from "../../assets/die";
 
-import { crapsContractABI } from "../../utils/constants";
+import tickIcon from "../../assets/icons/tick.svg"; 
+import copyIcon from "../../assets/icons/copy.svg";
 
-import { ethers } from "ethers";
 
 const CrapsGameNo = () => {
   const router = useRouter();
@@ -36,6 +36,7 @@ const CrapsGameNo = () => {
   useEffect(() => {
     (async () => {
       const crapsGame = await getCrapsGameContract(router.query.CrapsGameNo);
+      setGameAddress(router.query.CrapsGameNo);
       setGameContract(crapsGame);
     })();
   }, [state.signer]);
@@ -147,17 +148,39 @@ const CrapsGameNo = () => {
     6: six,
   };
 
+  const [copied, setCopied] = useState("");
+
+  const handleCopy = () => {
+    setCopied(gameAddress);
+    navigator.clipboard.writeText(gameAddress);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
   return (
     <div>
       {isLoading && <Loader />}
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
           <div>
-            <h4 className="font-epilogue font-semibold text-[23px] text-[#a8aabd] break-all">
-              {gameOwner ? gameOwner : "Loading..."}
-            </h4>
+            <div className="flex space-x-3">
+              <h4 className="font-epilogue font-semibold text-[23px] text-[#a8aabd] break-all">
+                {gameAddress ? gameAddress : "Loading..."}
+              </h4>
+              <div className="copy_btn" onClick={handleCopy}>
+                <Image
+                  src={
+                    copied === gameAddress
+                      ? tickIcon
+                      : copyIcon
+                  }
+                  alt={copied === gameAddress ? "tick_icon" : "copy_icon"}
+                  width={12}
+                  height={12}
+                />
+              </div>
+            </div>
             <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
-              Game Owner
+              Game Address
             </p>
           </div>
           <div className="flex justify-between items-center">
