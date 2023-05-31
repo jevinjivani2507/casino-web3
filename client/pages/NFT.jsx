@@ -81,7 +81,6 @@ const NFT = () => {
 
   useEffect(() => {
     (async () => {
-      if (!state.signer) return;
       const nftList = await state.dynamicNFTContract.getNFT(currentAccount);
       const parsedNftList = nftList.map((nft) => {
         return ethers.BigNumber.from(nft._hex).toNumber();
@@ -91,7 +90,7 @@ const NFT = () => {
       const filteredNftList = parsedNftList.filter((nft) => nft !== 0);
       setNftList(filteredNftList);
     })();
-  }, [state.signer]);
+  }, [state.dynamicNFTContract,currentAccount]);
 
   const _mintNFT = async () => {
     const createNFT = await state.dynamicNFTContract.mint(selectedOption);
@@ -158,6 +157,7 @@ const NFT = () => {
           <div className="flex justify-center items-center space-x-3 pt-3">
             {nftList.map((nft) => (
               <RadioButton
+                key={nft}
                 id={"nft" + nft}
                 name="nftNameButtons"
                 value={nft}
@@ -208,7 +208,7 @@ const NFT = () => {
           </div>
           <CustomButton
             btnType="button"
-            title="Upadte"
+            title="Update"
             styles="w-fit bg-[#E00000]"
             handleClick={updateNFT}
           />
