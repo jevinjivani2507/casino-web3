@@ -1,27 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStateContext } from "../context";
 
-import { CustomButton } from "../components";
+import { CustomButton, Loader } from "../components";
 
 import { useRouter } from "next/router";
 
 const CreateBaccaratGame = () => {
+  const router = useRouter();
 
-    const router = useRouter();
+  const {
+    state,
+    createBaccaratContract,
+    connectWallet,
+    isLoading,
+    setIsLoading,
+  } = useStateContext();
 
-  const { state, createBaccaratContract } = useStateContext();
+  const [inputValue, setInputValue] = useState("");
 
-    const [inputValue, setInputValue] = useState("");
+  const handleCreate = async () => {
+    setIsLoading(true);
+    await createBaccaratContract(inputValue);
+    setIsLoading(false);
+    router.push("/");
+  };
 
-    const handleCreate = async () => {
-        console.log(inputValue);
-        console.log(state);
-        await createBaccaratContract(inputValue);
-        router.push("/");
+  useEffect(() => {
+    const fetchData = async () => {
+      await connectWallet();
     };
+    fetchData();
+  }, []);
 
   return (
-    <div>
+    <>
+      {isLoading && <Loader />}
       <div className="space-y-3">
         <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
           Baccarat Bet Amount
@@ -44,7 +57,7 @@ const CreateBaccaratGame = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

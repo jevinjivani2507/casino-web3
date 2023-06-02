@@ -8,23 +8,29 @@ import { CustomButton, Loader, Bet } from "../../components";
 import { logo, coins } from "../../assets";
 import { one, two, three, four, five, six } from "../../assets/die";
 
-import tickIcon from "../../assets/icons/tick.svg"; 
+import tickIcon from "../../assets/icons/tick.svg";
 import copyIcon from "../../assets/icons/copy.svg";
-
 
 const CrapsGameNo = () => {
   const router = useRouter();
 
-  const { currentAccount, state, connectWallet, getCrapsGameContract } =
-    useStateContext();
+  const {
+    currentAccount,
+    state,
+    connectWallet,
+    getCrapsGameContract,
+    isLoading,
+    setIsLoading,
+  } = useStateContext();
+
+  console.log(isLoading);
 
   const [gameContract, setGameContract] = useState();
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [gameOwner, setGameOwner] = useState("");
-
   const [gameAddress, setGameAddress] = useState("");
-
   const [betArray, setBetArray] = useState([]);
+  const [isGamePlayed, setIsGamePlayed] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,14 +60,27 @@ const CrapsGameNo = () => {
       const sum = parsedArray.reduce((a, b) => a + b, 0);
       setPlayerRegistered(sum > 0 ? true : false);
       setBetArray(parsedArray);
+
+      const getDiceArray = await gameContract.getDice();
+
+      if (getDiceArray.length > 0) {
+        setIsGamePlayed(true);
+        const parsedArray = getDiceArray.map((item) => {
+          return parseInt(item._hex);
+        });
+        setDieArray(parsedArray);
+        _winningAmount();
+      }
     })();
   }, [gameContract]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const handleWithdraw = async () => {
+    setIsLoading(true);
     const withdraw = await gameContract.distributeWinningAmount();
     console.log(withdraw);
+    await withdraw.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const placeBet = async () => {
@@ -77,7 +96,11 @@ const CrapsGameNo = () => {
       parseInt(dicesNumber.amount),
     ];
 
+    setIsLoading(true);
     const placePlayerBet = await gameContract.setPlayerBet(placedBet);
+    await placePlayerBet.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const [dieSum, setDieSum] = useState({
@@ -104,28 +127,25 @@ const CrapsGameNo = () => {
   const [dieArray, setDieArray] = useState([]);
 
   const rollDice = async () => {
-    // setIsLoading(true);
+    setIsLoading(true);
     try {
       if (gameOwner.toLowerCase() === currentAccount.toLowerCase()) {
         const rollDice = await gameContract.rollDice();
         console.log(rollDice);
+
         await rollDice.wait();
       }
     } catch (err) {
       console.log(err);
     }
     const getDiceArray = await gameContract.getDice();
-
     const parsedArray = getDiceArray.map((item) => {
       return parseInt(item._hex);
     });
-
     setDieArray(parsedArray);
-
     _winningAmount();
-
-    console.log(parsedArray);
-    // setIsLoading(false);
+    // window.location.reload();
+    setIsLoading(false);
   };
 
   const [winningAmount, setWinningAmount] = useState(0);
@@ -168,11 +188,7 @@ const CrapsGameNo = () => {
               </h4>
               <div className="copy_btn" onClick={handleCopy}>
                 <Image
-                  src={
-                    copied === gameAddress
-                      ? tickIcon
-                      : copyIcon
-                  }
+                  src={copied === gameAddress ? tickIcon : copyIcon}
                   alt={copied === gameAddress ? "tick_icon" : "copy_icon"}
                   width={12}
                   height={12}
@@ -207,7 +223,7 @@ const CrapsGameNo = () => {
                 </div>
               </div>
             </div>
-            {gameOwner.toLowerCase() === currentAccount && (
+            {gameOwner.toLowerCase() === currentAccount && !isGamePlayed && (
               <CustomButton
                 btnType="button"
                 title="RollDice"

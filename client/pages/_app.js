@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import { Navbar } from "../components/Navbar";
-
+import { useState } from "react";
 import { StateContextProvider } from "../context";
 
 const App = ({ Component, pageProps }) => {

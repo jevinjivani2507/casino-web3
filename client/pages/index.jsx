@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
-
-import { DisplayGames, Modal } from "../components";
+import { DisplayGames, Loader } from "../components";
 import { useStateContext } from "../context";
 
-import { useRouter } from "next/router";
-
 export default function Home() {
-  const router = useRouter();
+  const [crapsGames, setCrapsGames] = useState();
+  const [baccaratGames, setBaccaratGames] = useState();
 
-  const { search } = router.query;
+  const { state, connectWallet, isLoading, setIsLoading } = useStateContext();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [games, setGames] = useState();
-
-  const { state } = useStateContext();
+  useEffect(() => {
+    const fetchData = async () => {
+      await connectWallet();
+    };
+    fetchData();
+  }, []);
 
   const getCrapsGames = async () => {
     if (!state.crapsFactoryContract) return;
@@ -50,8 +50,11 @@ export default function Home() {
     if (!state.crapsFactoryContract && !state.baccaratFactoryContract) return;
     const crapsGames = await getCrapsGames();
     const baccaratGames = await getBaccaratGames();
-    let fetchedGames = [...crapsGames, ...baccaratGames];
-    setGames(fetchedGames);
+
+    crapsGames.reverse();
+    baccaratGames.reverse();
+    setCrapsGames(crapsGames);
+    setBaccaratGames(baccaratGames);
   };
 
   useEffect(() => {
@@ -60,14 +63,19 @@ export default function Home() {
     }
   }, [state]);
 
-  console.log(games);
-
   return (
-    <div>
+    <div className="space-y-10">
+      {isLoading && <Loader />}
+
       <DisplayGames
-        title={"All Games"}
+        title={"Craps Games"}
         isLoading={isLoading}
-        games={games || []}
+        games={crapsGames || []}
+      />
+      <DisplayGames
+        title={"Baccarat Games"}
+        isLoading={isLoading}
+        games={baccaratGames || []}
       />
     </div>
   );

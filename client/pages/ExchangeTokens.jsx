@@ -4,41 +4,42 @@ import { ethers } from "ethers";
 
 import { useStateContext } from "../context";
 
-import { CustomButton } from "../components";
+import { CustomButton, Loader } from "../components";
 
 const ExchangeTokens = () => {
-  const { state, currentAccount, tokenBalance ,getTokenBalance, setTokenBalance } = useStateContext();
+  const { state, connectWallet ,getTokenBalance, isLoading, setIsLoading } = useStateContext();
 
   const [inputValue, setInputValue] = useState("");
   const [inputValue2, setInputValue2] = useState("");
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await connectWallet();
+    };
+    fetchData();
+  }, []);
+
   const handleTransfer = async () => {
-    console.log(inputValue);
-    console.log(state);
+    setIsLoading(true);
     const data = await state.tokenContract.exchangeMaticForToken({
       value: ethers.utils.parseEther(inputValue),
     });
-    console.log(data);
-
-    setTokenBalance(tokenBalance + inputValue*1000);
-    // getTokenBalance();
-    console.log(tokenBalance);
-    console.log("done");
+    await data.wait();
+    window.location.reload();
+    setIsLoading(false);    
   };
 
   const handleTransfer2 = async () => {
-    console.log(inputValue);
-    console.log(state);
+    setIsLoading(true);
     const data = await state.tokenContract.exchangeTokenForMatic(inputValue2);
-    console.log(data);
-    
-    getTokenBalance();
-    console.log(tokenBalance);
-    console.log("done");
+    await data.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   return (
     <div className="space-y-10">
+      {isLoading && <Loader />}
       <div className="space-y-3">
         <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
           Exchange MATIC for Tokens

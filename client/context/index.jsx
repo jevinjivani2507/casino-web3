@@ -110,8 +110,11 @@ export const StateContextProvider = ({ children }) => {
 
   const createCrapsGame = async () => {
     if (!state.crapsFactoryContract) return;
+    setIsLoading(true);
     const tx = await state.crapsFactoryContract.createCrapsGame();
     await tx.wait();
+    setIsLoading(false);
+    window.location.reload();
     console.log("Game Created");
   };
 
@@ -158,6 +161,8 @@ export const StateContextProvider = ({ children }) => {
         createCrapsGame,
         getCrapsGameContract,
         getBaccaratGameContract,
+        isLoading,
+        setIsLoading,
       }}
     >
       {children}

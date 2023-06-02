@@ -3,12 +3,10 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 
 import { useStateContext } from "../../context";
-import { CustomButton, CountBox, Loader, Winner } from "../../components";
+import { CustomButton, Loader, Winner } from "../../components";
 
 import { logo, coins } from "../../assets";
-
-import { diamonds, clubs, hearts, spades, card } from "../../assets/card";
-
+import { card } from "../../assets/card";
 import { ethers } from "ethers";
 
 import tickIcon from "../../assets/icons/tick.svg";
@@ -17,8 +15,14 @@ import copyIcon from "../../assets/icons/copy.svg";
 const BacarratGameNo = () => {
   const router = useRouter();
 
-  const { currentAccount, state, connectWallet, getBaccaratGameContract } =
-    useStateContext();
+  const {
+    currentAccount,
+    state,
+    connectWallet,
+    getBaccaratGameContract,
+    isLoading,
+    setIsLoading,
+  } = useStateContext();
 
   const [gameOwner, setGameOwner] = useState("");
   const [gameContract, setGameContract] = useState();
@@ -27,8 +31,6 @@ const BacarratGameNo = () => {
   const [playerRegistered, setPlayerRegistered] = useState(false);
   const [betAmount, setBetAmount] = useState(0);
   const [winningAmount, setWinningAmount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-
   const [top3Winners, setTop3Winners] = useState([]);
 
   const [isPlayerRegistered, setIsPlayerRegistered] = useState(false);
@@ -122,23 +124,29 @@ const BacarratGameNo = () => {
   }, [gameContract]);
 
   const handleWithdraw = async () => {
+    setIsLoading(true);
     const withdrawAmount = await gameContract.withdrawWinningAmount();
     console.log(withdrawAmount);
+    withdrawAmount.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const registerPlayer = async () => {
+    setIsLoading(true);
     const registerPlayer = await gameContract.registerPlayer();
     registerPlayer.wait();
     setPlayerRegistered(true);
-    console.log(registerPlayer);
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const distribitedCards = async () => {
+    setIsLoading(true);
     const distribitedCards = await gameContract.distributeCards();
     distribitedCards.wait();
-    console.log(distribitedCards);
-
-    _getPlayerCards();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const getPlayerCards = async (address) => {
@@ -260,7 +268,7 @@ const BacarratGameNo = () => {
               )
             ) : (
               <>
-                {!isPlayerRegistered && (
+                {!isPlayerRegistered && !isGameStarted ? (
                   <>
                     <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
                       You have not Registered Yet!
@@ -272,6 +280,10 @@ const BacarratGameNo = () => {
                       handleClick={registerPlayer}
                     />
                   </>
+                ) : (
+                  <h4 className="font-epilogue font-semibold text-[14px] text-[#808191] break-all">
+                      Game Has been played!!
+                    </h4>
                 )}
               </>
             )}

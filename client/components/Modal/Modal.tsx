@@ -37,23 +37,25 @@ interface ModalProps {
 
 const Modal = ({ text, handleClose }: ModalProps) => {
 
-  const { state, createCrapsGame } = useStateContext();
+  const { createCrapsGame, isLoading, setIsLoading } = useStateContext();
 
   const router = useRouter();
 
   const _createNFT = async () => {
     router.push("/NFT");
+    handleClose();
   };
   
   const _createCrapsGame = () => {
     console.log("create craps game");
     createCrapsGame();
+    handleClose();
     router.push("/");
   };
   
   const createBaccaratGame = () => {
     console.log("create baccarat game");
-
+    handleClose();
     router.push("/CreateBaccaratGame");
   };
 

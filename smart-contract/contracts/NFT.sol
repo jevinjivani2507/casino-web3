@@ -64,9 +64,18 @@ contract DynamicNFT is ERC721URIStorage {
         return hexColor;
     }
 
+    function compare(string memory str1, string memory str2) public pure returns (bool) {
+        return keccak256(abi.encodePacked(str1)) == keccak256(abi.encodePacked(str2));
+    }
+
     function generateNFT(uint256 tokenId) public returns (string memory) {
         string memory link = getLink(tokenId);
-        string memory color = haxCode();
+        string memory color;
+        if(compare(NFTColor[tokenId],"")){
+            color = haxCode();
+        }else{
+            color = NFTColor[tokenId];
+        }
         NFTColor[tokenId] = color;
         bytes memory svg = abi.encodePacked(
 
