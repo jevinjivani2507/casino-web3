@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useStateContext } from "../context";
-import { CustomButton, NFTCard } from "../components";
+import { CustomButton, NFTCard, Loader } from "../components";
 
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
@@ -46,9 +46,8 @@ const NFT = () => {
     setSelectedNFT(event.target.value);
   };
 
-  const { state, connectWallet, currentAccount } = useStateContext();
+  const { state, connectWallet, currentAccount, isLoading, setIsLoading } = useStateContext();
 
-  const [inputValue, setInputValue] = useState("");
   const [nftNumber, setNftNumber] = useState("");
   const [nftList, setNftList] = useState([]);
 
@@ -63,41 +62,50 @@ const NFT = () => {
   }, []);
 
   const withdrawAmount = async () => {
-    console.log(selectedNFT);
+    setIsLoading(true);
     const withdraw = await state.dynamicNFTContract.exchangeNFTForToken(
       selectedNFT
     );
-    console.log(withdraw);
+    await withdraw.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   const updateNFT = async () => {
+    setIsLoading(true);
     const update = await state.dynamicNFTContract.update(
       nftNumber,
       inputNFTLink,
       inputNFTName
     );
-    console.log(update);
+    await update.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   useEffect(() => {
     (async () => {
+      if (!state.dynamicNFTContract || !currentAccount) return;
       const nftList = await state.dynamicNFTContract.getNFT(currentAccount);
       const parsedNftList = nftList.map((nft) => {
         return ethers.BigNumber.from(nft._hex).toNumber();
       });
-
-      // remove every elemt which has value 0
       const filteredNftList = parsedNftList.filter((nft) => nft !== 0);
       setNftList(filteredNftList);
     })();
   }, [state.dynamicNFTContract,currentAccount]);
 
   const _mintNFT = async () => {
+    setIsLoading(true);
     const createNFT = await state.dynamicNFTContract.mint(selectedOption);
+    await createNFT.wait();
+    window.location.reload();
+    setIsLoading(false);
   };
 
   return (
     <div className="space-y-10">
+      {isLoading && <Loader />}
       <div className="space-y-3">
         <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
           NFT Amount
