@@ -144,7 +144,7 @@ contract DynamicNFT is ERC721URIStorage {
             (_amount) == 5 || (_amount) == 50 || (_amount) == 500,
             "Invalid Amount"
         );
-        require(tokenContract.approveToken(msg.sender, _amount), "paisa nathi");
+        require(tokenContract.approveToken(msg.sender, _amount), "Not enough Amount");
         require(
             tokenContract.transferFrom(msg.sender, tokenAddress, _amount),
             "TransferFrom not call"
