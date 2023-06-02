@@ -135,8 +135,8 @@ const BacarratGameNo = () => {
   const registerPlayer = async () => {
     setIsLoading(true);
     const registerPlayer = await gameContract.registerPlayer();
-    registerPlayer.wait();
     setPlayerRegistered(true);
+    registerPlayer.wait();
     window.location.reload();
     setIsLoading(false);
   };
