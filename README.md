@@ -20,3 +20,10 @@ Throughout the development process, we gained a deep understanding of blockchain
 
 ## What's next for Casino in Web3
 In the future, we plan to expand the Casino in Web3 project by adding more casino games to the platform, providing users with a wider range of options and experiences. We also aim to enhance the user interface and overall user experience based on user feedback and market trends. Furthermore, we will explore partnerships and integrations with existing NFT marketplaces to facilitate seamless trading and customization of NFTs within the platform.
+
+## How to play Games
+* In Craps, you'll find yourself captivated by the roll of the dice. By accurately predicting outcomes, you can win big!
+Visit this for instructions, [Click Here](https://docs.google.com/document/d/1Q4KJFYah3eCDNRSfjL080g26IbkNWCEzuXPpAmm4QJQ/edit)
+* Baccarat offers an elegant and classic casino experience. You will be given cards while playing the game, each card have some points associated with it. Winning Distribution is like #Dream11. Visit this for instructions, [Click Here](https://docs.google.com/document/d/1xOsOphClhCR3Iy1eI2_JHzAVOBCEYdw5DZSb7ITcyYo/edit)
+* Finally, we bring you the world of #NFTs unique digital assets that you can buy, personalize, and trade. Explore and discover an array of #dynamicNFTs that can be customized with your desired name and link. You can by NFT worth 5, 50 and 500 Tokens. 
+Visit this for instructions, [Click Here](https://docs.google.com/document/d/1mxhE6SqSKBhAxdrEbgISn3ayMORqCfp2HLsDtbOGl3M/edit)
